@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cosmetics Catalog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f6f7f9;
+            --card-bg: #ffffff;
+            --text-main: #141416;
+            --text-sub: #6e7179;
+            --accent: #b27556;
+            --accent-light: #f7ede8;
+            --profit-color: #10b981;
+            --profit-bg: #ecfdf5;
+            --border-color: #e2e4e8;
+            --shadow: 0 8px 24px rgba(0,0,0,0.05);
+            --header-bg: rgba(255, 255, 255, 0.94);
+            --modal-overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #101012;
+            --card-bg: #1a1a1e;
+            --text-main: #f4f4f6;
+            --text-sub: #9e9ea6;
+            --accent: #d89679;
+            --accent-light: #2c221e;
+            --profit-color: #34d399;
+            --profit-bg: #064e3b;
+            --border-color: #2b2b32;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --header-bg: rgba(26, 26, 30, 0.94);
+            --modal-overlay: rgba(0, 0, 0, 0.85);
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background 0.25s, color 0.25s, border-color 0.25s;
+        }
+
+        body {
+            background: var(--bg-color); color: var(--text-main);
+            padding-bottom: 60px;
+        }
+
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--header-bg); backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .brand h1 { font-size: 21px; font-weight: 800; color: var(--accent); }
+        .brand p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+        .theme-btn {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); width: 42px; height: 42px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: var(--shadow);
+        }
+
+        .controls {
+            padding: 16px 25px; display: flex; flex-direction: column;
+            gap: 12px; max-width: 1500px; margin: 0 auto;
+        }
+
+        .search-box input {
+            width: 100%; padding: 12px 18px; border-radius: 12px;
+            border: 1px solid var(--border-color); background: var(--card-bg);
+            color: var(--text-main); font-size: 14px; outline: none;
+        }
+
+        .category-scroll { display: flex; gap: 8px; overflow-x: auto; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            padding: 7px 16px; border-radius: 20px;
+            border: 1px solid var(--border-color); background: var(--card-bg);
+            color: var(--text-main); font-size: 13px; font-weight: 600;
+            cursor: pointer; white-space: nowrap;
+        }
+
+        .cat-btn.active {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+        }
+
+        /* 4 POSTS IN A ROW FOR IPAD */
+        .product-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; padding: 10px 25px; max-width: 1500px; margin: 0 auto;
+        }
+        @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 650px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .card {
+            background: var(--card-bg); border-radius: 16px;
+            border: 1px solid var(--border-color); overflow: hidden;
+            box-shadow: var(--shadow); display: flex; flex-direction: column;
+            cursor: pointer; user-select: none; transition: transform 0.15s ease;
+        }
+        .card:active { transform: scale(0.97); }
+
+        .img-wrap {
+            position: relative; width: 100%; aspect-ratio: 1 / 1;
+            background: #e9ecef; overflow: hidden;
+        }
+        .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+        .badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0, 0, 0, 0.7); color: #fff;
+            padding: 3px 9px; border-radius: 12px; font-size: 11px;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-body {
+            padding: 12px 14px; display: flex; flex-direction: column;
+            flex-grow: 1; justify-content: space-between;
+        }
+
+        .title {
+            font-size: 15px; font-weight: 700; margin-bottom: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .desc-preview {
+            font-size: 12px; color: var(--text-sub);
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+            line-height: 1.4; margin-bottom: 8px;
+        }
+
+        .pricing-box {
+            background: var(--bg-color); border-radius: 10px;
+            padding: 8px 10px; margin-top: auto;
+        }
+        .price-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+        .buy-price { font-weight: 800; color: var(--accent); }
+        .sell-price { font-weight: 600; color: var(--text-sub); }
+        .profit-badge {
+            font-size: 11px; color: var(--profit-color); background: var(--profit-bg);
+            padding: 2px 6px; border-radius: 6px; font-weight: 700; display: inline-block;
+        }
+
+        /* MODAL POPUP */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--modal-overlay); backdrop-filter: blur(8px);
+            z-index: 1000; display: none; justify-content: center;
+            align-items: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg); border-radius: 22px; width: 100%;
+            max-width: 850px; max-height: 90vh; overflow-y: auto;
+            border: 1px solid var(--border-color); display: grid;
+            grid-template-columns: 1.1fr 1fr; gap: 25px; padding: 25px; position: relative;
+        }
+        @media (max-width: 768px) { .modal-content { grid-template-columns: 1fr; } }
+
+        .close-btn {
+            position: absolute; top: 15px; left: 15px;
+            background: var(--bg-color); border: 1px solid var(--border-color);
+            color: var(--text-main); width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer; z-index: 10;
+        }
+
+        .main-img-box {
+            width: 100%; aspect-ratio: 1 / 1; border-radius: 14px;
+            overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 10px;
+        }
+        .main-img-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .thumbs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .thumb {
+            aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden;
+            border: 2px solid transparent; cursor: pointer; background: #eee;
+        }
+        .thumb.active { border-color: var(--accent); }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal-pricing {
+            background: var(--bg-color); border-radius: 12px;
+            padding: 12px 16px; margin: 15px 0;
+        }
+        .modal-pricing-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+
+        .features-list { list-style: none; margin: 15px 0; }
+        .features-list li {
+            font-size: 13px; margin-bottom: 5px; color: var(--text-sub);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .features-list li::before { content: "✓"; color: var(--accent); font-weight: bold; }
+
+        .whatsapp-direct-btn {
+            background: #25D366; color: #ffffff; border: none; padding: 12px;
+            border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            width: 100%; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <h1 id="brandTitleText">LUXURY COSMETICS</h1>
+            <p id="brandSubText"></p>
+        </div>
+        <button class="theme-btn" id="themeToggle">🌙</button>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 ل ناڤێ مەوادی، کۆدی یان بەشەکێ بگەڕە...">
+        </div>
+
+        <div class="category-scroll">
+            <button class="cat-btn active" data-cat="all">هەمی بەرهەم</button>
+            <button class="cat-btn" data-cat="perfume">عەتر (Perfume)</button>
+            <button class="cat-btn" data-cat="skincare">پێست (Skin Care)</button>
+            <button class="cat-btn" data-cat="makeup">مەیک ئەپ (Makeup)</button>
+            <button class="cat-btn" data-cat="hair">پرچ (Hair)</button>
+        </div>
+    </div>
+
+    <main class="product-grid" id="gridContainer"></main>
+
+    <!-- DETAILS MODAL -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">✕</button>
+            
+            <div class="gallery-box">
+                <div class="main-img-box">
+                    <img id="modalMainImg" src="" alt="">
+                </div>
+                <div class="thumbs-grid" id="modalThumbs"></div>
+            </div>
+
+            <div class="details-box">
+                <div>
+                    <h2 class="title" style="font-size: 20px;" id="modalTitle"></h2>
+                    <span style="font-size: 13px; color: var(--text-sub); display: block;" id="modalCode"></span>
+                    
+                    <div class="modal-pricing" id="modalPricingBox" style="display: none;">
+                        <div class="modal-pricing-row" id="modalBuyRow" style="display: none;">
+                            <span>بهایێ کڕینێ (جملە):</span>
+                            <span class="buy-price" style="font-size: 18px;" id="modalBuyPrice"></span>
+                        </div>
+                        <div class="modal-pricing-row" id="modalSellRow" style="display: none;">
+                            <span>بهایێ فرۆتنێ (موفرەد):</span>
+                            <span class="sell-price" style="font-size: 16px;" id="modalSellPrice"></span>
+                        </div>
+                        <div class="modal-pricing-row" id="modalProfitRow" style="display: none; margin-bottom: 0;">
+                            <span>قازانجا دکانێ:</span>
+                            <span class="profit-badge" id="modalProfit"></span>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 13.5px; line-height: 1.5; color: var(--text-sub);" id="modalDesc"></p>
+                    <ul class="features-list" id="modalFeatures"></ul>
+
+                    <button class="whatsapp-direct-btn" id="modalWhatsAppBtn" style="display: none;">
+                        📲 داخوازی ب واتسئەپی
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+          apiKey: "AIzaSyCq80sBc7ccLH31bUufiUP1El-GkJ-vqp8",
+          authDomain: "korelya-kurdsitan.firebaseapp.com",
+          projectId: "korelya-kurdsitan",
+          storageBucket: "korelya-kurdsitan.firebasestorage.app",
+          messagingSenderId: "788150507956",
+          appId: "1:788150507956:web:866a7971f40579bd7b3ae1",
+          measurementId: "G-5TR929V1WV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        // =====================================
+
+        let currentPhone = "9647502406123";
+        let products = [];
+        let currentProduct = null;
+        const grid = document.getElementById('gridContainer');
+
+        // Realtime Listener for Settings
+        db.collection('settings').doc('general').onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('brandTitleText').textContent = data.brandTitle || 'LUXURY COSMETICS';
+                document.getElementById('brandSubText').textContent = data.brandSub || '';
+                if (data.phone) currentPhone = data.phone;
+            }
+        });
+
+        // Realtime Listener for Products
+        db.collection('products').orderBy('order', 'asc').onSnapshot(snapshot => {
+            products = [];
+            snapshot.forEach(doc => {
+                products.push({ id: doc.id, ...doc.data() });
+            });
+            renderProducts(products);
+        });
+
+        function renderProducts(items) {
+            grid.innerHTML = '';
+            if (items.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub); padding: 40px;">هیچ بەرهەمەک نینە.</p>';
+                return;
+            }
+
+            items.forEach(p => {
+                const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
+                const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
+                const hasProfit = hasBuy && hasSell;
+                const profit = hasProfit ? (p.sellPrice - p.buyPrice) : 0;
+
+                let pricingHtml = '';
+                if (hasBuy || hasSell) {
+                    pricingHtml = `
+                        <div class="pricing-box">
+                            ${hasBuy ? `<div class="price-row"><span>کڕین (جملە):</span><span class="buy-price">$${p.buyPrice}</span></div>` : ''}
+                            ${hasSell ? `<div class="price-row"><span>فرۆتن (موفرەد):</span><span class="sell-price">$${p.sellPrice}</span></div>` : ''}
+                            ${hasProfit ? `<div class="profit-badge">قازانج: +$${profit}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openModal(p);
+
+                card.innerHTML = `
+                    <div class="img-wrap">
+                        <img src="${p.images[0]}" alt="${p.name}">
+                        ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <div class="title">${p.name}</div>
+                        ${p.shortDesc ? `<div class="desc-preview">${p.shortDesc}</div>` : ''}
+                        ${pricingHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(p) {
+            currentProduct = p;
+            document.getElementById('modalTitle').textContent = p.name;
+            
+            const codeEl = document.getElementById('modalCode');
+            if (p.code) {
+                codeEl.textContent = "کۆد: " + p.code;
+                codeEl.style.display = 'block';
+            } else {
+                codeEl.style.display = 'none';
+            }
+
+            const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
+            const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
+            const pricingBox = document.getElementById('modalPricingBox');
+            const buyRow = document.getElementById('modalBuyRow');
+            const sellRow = document.getElementById('modalSellRow');
+            const profitRow = document.getElementById('modalProfitRow');
+
+            if (hasBuy || hasSell) {
+                pricingBox.style.display = 'block';
+                if (hasBuy) {
+                    buyRow.style.display = 'flex';
+                    document.getElementById('modalBuyPrice').textContent = "$" + p.buyPrice;
+                } else buyRow.style.display = 'none';
+
+                if (hasSell) {
+                    sellRow.style.display = 'flex';
+                    document.getElementById('modalSellPrice').textContent = "$" + p.sellPrice;
+                } else sellRow.style.display = 'none';
+
+                if (hasBuy && hasSell) {
+                    profitRow.style.display = 'flex';
+                    document.getElementById('modalProfit').textContent = "+$" + (p.sellPrice - p.buyPrice);
+                } else profitRow.style.display = 'none';
+            } else {
+                pricingBox.style.display = 'none';
+            }
+
+            const descEl = document.getElementById('modalDesc');
+            if (p.fullDesc) {
+                descEl.textContent = p.fullDesc;
+                descEl.style.display = 'block';
+            } else {
+                descEl.style.display = 'none';
+            }
+
+            const featList = document.getElementById('modalFeatures');
+            featList.innerHTML = '';
+            if (p.features && p.features.length > 0) {
+                featList.style.display = 'block';
+                p.features.forEach(f => {
+                    const li = document.createElement('li');
+                    li.textContent = f;
+                    featList.appendChild(li);
+                });
+            } else {
+                featList.style.display = 'none';
+            }
+
+            const mainImg = document.getElementById('modalMainImg');
+            const thumbs = document.getElementById('modalThumbs');
+            mainImg.src = p.images[0];
+            thumbs.innerHTML = '';
+
+            if (p.images.length > 1) {
+                thumbs.style.display = 'grid';
+                p.images.forEach((imgSrc, idx) => {
+                    const t = document.createElement('div');
+                    t.className = `thumb ${idx === 0 ? 'active' : ''}`;
+                    t.innerHTML = `<img src="${imgSrc}" alt="thumb">`;
+                    t.onclick = () => {
+                        mainImg.src = imgSrc;
+                        document.querySelectorAll('.thumb').forEach(el => el.classList.remove('active'));
+                        t.classList.add('active');
+                    };
+                    thumbs.appendChild(t);
+                });
+            } else {
+                thumbs.style.display = 'none';
+            }
+
+            const waBtn = document.getElementById('modalWhatsAppBtn');
+            if (currentPhone) {
+                waBtn.style.display = 'flex';
+            } else {
+                waBtn.style.display = 'none';
+            }
+
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        document.getElementById('closeModal').onclick = () => {
+            document.getElementById('productModal').classList.remove('active');
+        };
+        document.getElementById('productModal').onclick = (e) => {
+            if (e.target.id === 'productModal') document.getElementById('productModal').classList.remove('active');
+        };
+
+        // WhatsApp Direct Link
+        document.getElementById('modalWhatsAppBtn').onclick = () => {
+            if (!currentProduct) return;
+            let msg = `سلاڤ، من پرسیار دەربارەی ڤی مەوادی هەیە:\n\n📌 *${currentProduct.name}*`;
+            if (currentProduct.code) msg += `\nکۆد: ${currentProduct.code}`;
+            if (currentProduct.buyPrice) msg += `\nبهایێ جملە: $${currentProduct.buyPrice}`;
+            if (currentProduct.sellPrice) msg += `\nبهایێ موفرەد: $${currentProduct.sellPrice}`;
+            window.open(`https://wa.me/${currentPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const res = products.filter(p => p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q)));
+            renderProducts(res);
+        });
+
+        // Filter
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const cat = btn.getAttribute('data-cat');
+                if (cat === 'all') renderProducts(products);
+                else renderProducts(products.filter(p => p.category === cat));
+            };
+        });
+
+        // Theme Toggle
+        const themeBtn = document.getElementById('themeToggle');
+        if (localStorage.getItem('cosmetics_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.textContent = '☀️';
+        }
+
+        themeBtn.onclick = () => {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('cosmetics_theme', 'light');
+                themeBtn.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('cosmetics_theme', 'dark');
+                themeBtn.textContent = '☀️';
+            }
+        };
+    </script>
+</body>
+</html>
