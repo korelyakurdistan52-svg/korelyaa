@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ئەدمین پانێڵ | Firebase Connected</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f5f8;
+            --card-bg: #ffffff;
+            --text-main: #141416;
+            --text-sub: #6e7179;
+            --accent: #b27556;
+            --accent-light: #f7ede8;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
+            --border-color: #e2e4e8;
+            --shadow: 0 8px 24px rgba(0,0,0,0.06);
+            --header-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #101012;
+            --card-bg: #1a1a1e;
+            --text-main: #f4f4f6;
+            --text-sub: #9e9ea6;
+            --accent: #d89679;
+            --accent-light: #2c221e;
+            --danger: #f87171;
+            --danger-bg: #450a0a;
+            --border-color: #2b2b32;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --header-bg: rgba(26, 26, 30, 0.95);
+        }
+
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background 0.25s, color 0.25s, border-color 0.25s;
+        }
+
+        body {
+            background: var(--bg-color); color: var(--text-main);
+            padding-bottom: 95px;
+        }
+
+        /* LOGIN SCREEN OVERLAY */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 35px 25px;
+            width: 100%; max-width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .login-icon {
+            width: 65px; height: 65px;
+            background: var(--accent-light);
+            color: var(--accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 15px auto;
+        }
+
+        .login-input {
+            width: 100%; padding: 14px;
+            border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--text-main);
+            font-size: 18px; text-align: center; letter-spacing: 4px;
+            outline: none; margin: 15px 0; font-weight: bold;
+        }
+
+        .login-input:focus { border-color: var(--accent); }
+
+        .login-btn {
+            background: var(--accent); color: #fff;
+            border: none; padding: 13px; border-radius: 12px;
+            width: 100%; font-size: 15px; font-weight: 800;
+            cursor: pointer;
+        }
+
+        .error-text {
+            color: var(--danger); font-size: 13px;
+            margin-top: 10px; display: none; font-weight: 600;
+        }
+
+        /* Top Header */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--header-bg); backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .header-btn {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 7px 14px; border-radius: 10px;
+            cursor: pointer; font-size: 13px; font-weight: 700;
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .form-card {
+            background: var(--card-bg); border-radius: 18px;
+            border: 1px solid var(--border-color); padding: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 14px; margin-bottom: 14px;
+        }
+        @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        label { font-size: 13px; font-weight: 700; color: var(--text-sub); }
+
+        input, select, textarea {
+            width: 100%; padding: 11px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-main); font-size: 14px; outline: none;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+        /* Photo Upload Slots */
+        .photo-upload-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; margin-top: 8px; margin-bottom: 16px;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1 / 1; border-radius: 12px;
+            border: 2px dashed var(--border-color);
+            background: var(--bg-color);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            overflow: hidden; text-align: center; padding: 5px;
+        }
+
+        .photo-slot.has-image { border-style: solid; border-color: var(--accent); }
+        .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .photo-slot input[type="file"] { display: none; }
+        .photo-slot span { font-size: 11px; color: var(--text-sub); z-index: 1; font-weight: 600; }
+        .photo-slot .slot-icon { font-size: 20px; margin-bottom: 2px; }
+
+        .btn-submit {
+            background: var(--accent); color: #fff; border: none;
+            padding: 14px; border-radius: 12px; width: 100%;
+            font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+        }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Products List with Reordering */
+        .admin-product-item {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        .item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .item-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; background: #eee; flex-shrink: 0; }
+        .item-details { overflow: hidden; }
+        .item-details .name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .item-actions-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+        .order-btn-group {
+            display: flex; gap: 4px; background: var(--bg-color);
+            padding: 4px; border-radius: 10px; border: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            padding: 6px 10px; border-radius: 8px; font-size: 12px;
+            font-weight: 700; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .order-btn {
+            background: var(--card-bg); color: var(--text-main);
+            border: 1px solid var(--border-color); width: 32px; height: 32px;
+            font-size: 13px; padding: 0;
+        }
+        .order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .edit-btn { background: var(--accent-light); color: var(--accent); }
+        .del-btn { background: var(--danger-bg); color: var(--danger); }
+
+        /* Taskbar */
+        .bottom-taskbar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--header-bg); backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-around;
+            padding: 10px 0 14px 0; z-index: 999;
+        }
+        .nav-item {
+            background: none; border: none; color: var(--text-sub);
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; cursor: pointer; font-size: 11.5px; font-weight: 700; flex: 1;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item span.icon { font-size: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- PASSWORD LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-icon">🔒</div>
+            <h2 style="font-size: 19px; font-weight: 800;">ژوورا ئەدمینی</h2>
+            <p style="font-size: 12.5px; color: var(--text-sub); margin-top: 4px;">تکایە پاسوۆردێ ژوورا کۆنترۆلێ لێبدە</p>
+
+            <form id="loginForm">
+                <input type="password" id="passInput" class="login-input" placeholder="••••" required autofocus>
+                <button type="submit" class="login-btn">چوونە ژوور ➔</button>
+                <div class="error-text" id="loginError">پاسوۆرد شاشە! دووبارە تاقی بکەڤە.</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <div style="font-weight: 800; font-size: 18px; color: var(--accent);">🛠️ کۆنترۆڵ پانێڵ (Firebase)</div>
+        <div style="display: flex; gap: 8px;">
+            <a href="index.html" class="header-btn">👁️ کاتالۆگ</a>
+            <button class="header-btn" onclick="logoutAdmin()" title="دەرکەفتن">🚪</button>
+            <button class="header-btn" id="themeToggle">🌙</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ١. زێدەکرنا پۆستان -->
+        <div id="tab-add" class="tab-content active">
+            <div class="form-card">
+                <h2 id="formTitle" style="margin-bottom: 16px; font-size: 17px;">➕ زێدەکرنا بەرهەمێ نوو</h2>
+                <form id="productForm">
+                    <input type="hidden" id="editingDocId" value="">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>ناڤێ بەرهەمی: *</label>
+                            <input type="text" id="pName" required placeholder="بۆ نموونە: عەترا Chanel Chance">
+                        </div>
+                        <div class="form-group">
+                            <label>کۆدێ بەرهەمی (ئیختیاری):</label>
+                            <input type="text" id="pCode" placeholder="بۆ نموونە: #CH-01">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>بهایێ کڕینێ - جملە (ئیختیاری):</label>
+                            <input type="number" step="any" id="pBuyPrice" placeholder="دەست لێنەدە ئەگەر نینە">
+                        </div>
+                        <div class="form-group">
+                            <label>بهایێ فرۆتنێ - موفرەد (ئیختیاری):</label>
+                            <input type="number" step="any" id="pSellPrice" placeholder="دەست لێنەدە ئەگەر نینە">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>بەش (Category):</label>
+                            <select id="pCategory">
+                                <option value="perfume">عەتر (Perfume)</option>
+                                <option value="skincare">پێست (Skin Care)</option>
+                                <option value="makeup">مەیک ئەپ (Makeup)</option>
+                                <option value="hair">پرچ (Hair)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>نیشان / باج (ئیختیاری):</label>
+                            <input type="text" id="pBadge" placeholder="ئۆرجینال، نوو، پڕفرۆش...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>وەسفا کورت (ئیختیاری):</label>
+                        <input type="text" id="pShortDesc" placeholder="وەسفەکا کورت ل سەر کارتێ">
+                    </div>
+
+                    <div class="form-group">
+                        <label>تەفاسیل و وەسفا تەمام (ئیختیاری):</label>
+                        <textarea id="pFullDesc" rows="3" placeholder="وەسف و چەوانیا بکارئینانێ..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>تایبەتمەندی (ئیختیاری - ب فاریزە جیا بکە):</label>
+                        <input type="text" id="pFeatures" placeholder="100ml, ئۆرجینال فەڕەنسی, 24h">
+                    </div>
+
+                    <!-- ٤ وێنە ژ ئایپادێ / مۆبایلێ -->
+                    <label style="margin-top: 10px; display: block;">وێنەیێن بەرهەمی (١ بۆ ٤ وێنە ژ ئایپادێ هەڵبژێرە):</label>
+                    <div class="photo-upload-grid">
+                        <div class="photo-slot" onclick="triggerUpload(0)" id="slot-0">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ سەرەکی</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 0)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(1)" id="slot-1">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٢</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 1)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(2)" id="slot-2">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٣</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 2)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(3)" id="slot-3">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٤</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 3)">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="saveBtn">☁️ پاشکەوتکرن د Firebase دا</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ٢. پۆستێت من دگەل گوهۆڕینا ڕێزبەندیێ -->
+        <div id="tab-manage" class="tab-content">
+            <h2 style="margin-bottom: 14px; font-size: 17px;">📦 بەرهەمێن داتابەیسا Firebase (<span id="totalCount">0</span>)</h2>
+            <div id="adminProductList"></div>
+        </div>
+
+        <!-- ٣. دەستکاریا وێبسایتی -->
+        <div id="tab-settings" class="tab-content">
+            <div class="form-card">
+                <h2 style="margin-bottom: 16px; font-size: 17px;">⚙️ نڤیسینێن سەرێ پەیجی و ژمارە</h2>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label>ناڤێ سەرەکی (Title):</label>
+                        <input type="text" id="setBrandTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نڤیسینا ژێر ناڤی (Subtitle):</label>
+                        <input type="text" id="setBrandSub">
+                    </div>
+                    <div class="form-group">
+                        <label>ژمارا واتسئەپێ:</label>
+                        <input type="text" id="setPhone" placeholder="9647502406123">
+                    </div>
+                    <button type="submit" class="btn-submit">💾 پاشکەوتکرن</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TASKBAR -->
+    <nav class="bottom-taskbar">
+        <button class="nav-item active" onclick="switchTab('tab-add', this)">
+            <span class="icon">➕</span>
+            <span>زێدەکرن</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-manage', this)">
+            <span class="icon">📦</span>
+            <span>پۆستێت من</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-settings', this)">
+            <span class="icon">⚙️</span>
+            <span>ڕێکخستن</span>
+        </button>
+    </nav>
+
+    <script>
+        // =====================================
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+          apiKey: "AIzaSyCq80sBc7ccLH31bUufiUP1El-GkJ-vqp8",
+          authDomain: "korelya-kurdsitan.firebaseapp.com",
+          projectId: "korelya-kurdsitan",
+          storageBucket: "korelya-kurdsitan.firebasestorage.app",
+          messagingSenderId: "788150507956",
+          appId: "1:788150507956:web:866a7971f40579bd7b3ae1",
+          measurementId: "G-5TR929V1WV"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        // =====================================
+
+        // پاسوۆردێ ئەدمینی
+        const ADMIN_PASSWORD = "1234";
+
+        function initAuth() {
+            const isAuth = localStorage.getItem('admin_authenticated');
+            if (isAuth === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        }
+        initAuth();
+
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('passInput').value;
+            if (pass === ADMIN_PASSWORD) {
+                localStorage.setItem('admin_authenticated', 'true');
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('loginError').style.display = 'none';
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('passInput').value = '';
+            }
+        };
+
+        window.logoutAdmin = function() {
+            localStorage.removeItem('admin_authenticated');
+            location.reload();
+        };
+
+        let currentUploadedImages = ["", "", "", ""];
+        let allProductsCache = [];
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            el.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function triggerUpload(index) {
+            document.getElementById(`slot-${index}`).querySelector('input[type="file"]').click();
+        }
+
+        function handleImageSelect(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 600;
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > maxDim) { h = (h * maxDim) / w; w = maxDim; } }
+                    else { if (h > maxDim) { w = (w * maxDim) / h; h = maxDim; } }
+
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                    currentUploadedImages[index] = compressedBase64;
+                    updateSlotUI(index, compressedBase64);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateSlotUI(index, src) {
+            const slot = document.getElementById(`slot-${index}`);
+            if (src) {
+                slot.classList.add('has-image');
+                slot.innerHTML = `<img src="${src}"><input type="file" accept="image/*" onchange="handleImageSelect(event, ${index})">`;
+            } else {
+                slot.classList.remove('has-image');
+                slot.innerHTML = `<span class="slot-icon">📷</span><span>وێنێ ${index + 1}</span><input type="file" accept="image/*" onchange="handleImageSelect(event, ${index})">`;
+            }
+        }
+
+        // Realtime Listener for Products List in Admin
+        db.collection('products').orderBy('order', 'asc').onSnapshot(snapshot => {
+            allProductsCache = [];
+            snapshot.forEach(doc => {
+                allProductsCache.push({ docId: doc.id, ...doc.data() });
+            });
+            renderAdminList(allProductsCache);
+        });
+
+        // Form Submit (Save to Firebase Firestore)
+        document.getElementById('productForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = "⏳ خەریکە پاشکەوت دبیت...";
+
+            const editingId = document.getElementById('editingDocId').value;
+            const validImages = currentUploadedImages.filter(img => img && img.trim() !== "");
+            if (validImages.length === 0) {
+                validImages.push("https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&auto=format&fit=crop&q=80");
+            }
+
+            const buyVal = document.getElementById('pBuyPrice').value;
+            const sellVal = document.getElementById('pSellPrice').value;
+            const featStr = document.getElementById('pFeatures').value;
+            const features = featStr ? featStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+            const prodObj = {
+                name: document.getElementById('pName').value.trim(),
+                code: document.getElementById('pCode').value.trim(),
+                buyPrice: buyVal !== "" ? parseFloat(buyVal) : null,
+                sellPrice: sellVal !== "" ? parseFloat(sellVal) : null,
+                category: document.getElementById('pCategory').value,
+                badge: document.getElementById('pBadge').value.trim(),
+                shortDesc: document.getElementById('pShortDesc').value.trim(),
+                fullDesc: document.getElementById('pFullDesc').value.trim(),
+                features: features,
+                images: validImages,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if (editingId) {
+                    await db.collection('products').doc(editingId).update(prodObj);
+                    alert("بەرهەم ب سەرکەفتی د فایەربەیسێ دا هاتە نووژەنکرن!");
+                } else {
+                    // New Product goes to the very top (order = smallest index or batch shift)
+                    const batch = db.batch();
+                    const newDocRef = db.collection('products').doc();
+                    
+                    prodObj.order = 0;
+                    batch.set(newDocRef, prodObj);
+
+                    allProductsCache.forEach(p => {
+                        const ref = db.collection('products').doc(p.docId);
+                        batch.update(ref, { order: (p.order || 0) + 1 });
+                    });
+
+                    await batch.commit();
+                    alert("بەرهەم ب سەرکەفتی هاتە زێدەکرن و کەفتە سەرێ لیستێ!");
+                }
+                resetForm();
+                switchTab('tab-manage', document.querySelectorAll('.nav-item')[1]);
+            } catch (err) {
+                alert("خەلەتەک ڕویدا: " + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = "☁️ پاشکەوتکرن د Firebase دا";
+            }
+        };
+
+        function renderAdminList(prods) {
+            const list = document.getElementById('adminProductList');
+            document.getElementById('totalCount').textContent = prods.length;
+            list.innerHTML = '';
+
+            if (prods.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-sub); padding: 30px;">چ بەرهەم نەهاتینە زێدەکرن.</p>';
+                return;
+            }
+
+            prods.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = 'admin-product-item';
+                div.innerHTML = `
+                    <div class="item-info">
+                        <img src="${p.images[0]}" class="item-img" alt="">
+                        <div class="item-details">
+                            <div class="name">${idx + 1}. ${p.name}</div>
+                            <div style="font-size: 12px; color: var(--text-sub);">
+                                ${p.code ? 'کۆد: ' + p.code : ''} 
+                                ${p.buyPrice !== null ? ' | کڕین: $' + p.buyPrice : ''}
+                                ${p.sellPrice !== null ? ' | فرۆتن: $' + p.sellPrice : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item-actions-group">
+                        <div class="order-btn-group">
+                            <button class="action-btn order-btn" title="سەرێ لیستێ" onclick="moveItemToTop(${idx})" ${idx === 0 ? 'disabled' : ''}>🔝</button>
+                            <button class="action-btn order-btn" title="ئێک پلە سەری" onclick="moveItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>⬆️</button>
+                            <button class="action-btn order-btn" title="ئێک پلە خواری" onclick="moveItem(${idx}, 1)" ${idx === prods.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        </div>
+                        <button class="action-btn edit-btn" onclick="startEdit('${p.docId}')">✏️</button>
+                        <button class="action-btn del-btn" onclick="deleteProd('${p.docId}')">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Reordering in Firestore using Batch
+        window.moveItem = async function(index, direction) {
+            const targetIdx = index + direction;
+            if (targetIdx < 0 || targetIdx >= allProductsCache.length) return;
+
+            const batch = db.batch();
+            const currentItem = allProductsCache[index];
+            const targetItem = allProductsCache[targetIdx];
+
+            batch.update(db.collection('products').doc(currentItem.docId), { order: targetIdx });
+            batch.update(db.collection('products').doc(targetItem.docId), { order: index });
+
+            await batch.commit();
+        };
+
+        window.moveItemToTop = async function(index) {
+            if (index <= 0) return;
+            const batch = db.batch();
+            const item = allProductsCache[index];
+
+            batch.update(db.collection('products').doc(item.docId), { order: 0 });
+
+            allProductsCache.forEach((p, i) => {
+                if (p.docId !== item.docId && i < index) {
+                    batch.update(db.collection('products').doc(p.docId), { order: i + 1 });
+                }
+            });
+
+            await batch.commit();
+        };
+
+        window.deleteProd = async function(docId) {
+            if (confirm("ئەرێ تۆ پشتڕاستی دێ ڤی بەرهەمی ژ فایەربەیسێ ژێبەی؟")) {
+                await db.collection('products').doc(docId).delete();
+            }
+        };
+
+        window.startEdit = function(docId) {
+            const p = allProductsCache.find(x => x.docId === docId);
+            if (!p) return;
+
+            document.getElementById('editingDocId').value = docId;
+            document.getElementById('formTitle').textContent = "✏️ دەستکاریا: " + p.name;
+            document.getElementById('saveBtn').textContent = "💾 نووژەنکرنا بەرهەمی";
+
+            document.getElementById('pName').value = p.name || '';
+            document.getElementById('pCode').value = p.code || '';
+            document.getElementById('pBuyPrice').value = p.buyPrice !== null ? p.buyPrice : '';
+            document.getElementById('pSellPrice').value = p.sellPrice !== null ? p.sellPrice : '';
+            document.getElementById('pCategory').value = p.category || 'perfume';
+            document.getElementById('pBadge').value = p.badge || '';
+            document.getElementById('pShortDesc').value = p.shortDesc || '';
+            document.getElementById('pFullDesc').value = p.fullDesc || '';
+            document.getElementById('pFeatures').value = (p.features || []).join(', ');
+
+            currentUploadedImages = ["", "", "", ""];
+            (p.images || []).forEach((img, i) => {
+                if (i < 4) {
+                    currentUploadedImages[i] = img;
+                    updateSlotUI(i, img);
+                }
+            });
+            for (let i = (p.images || []).length; i < 4; i++) {
+                updateSlotUI(i, "");
+            }
+
+            switchTab('tab-add', document.querySelectorAll('.nav-item')[0]);
+        };
+
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('editingDocId').value = "";
+            document.getElementById('formTitle').textContent = "➕ زێدەکرنا بەرهەمێ نوو";
+            document.getElementById('saveBtn').textContent = "☁️ پاشکەوتکرن د Firebase دا";
+            currentUploadedImages = ["", "", "", ""];
+            for (let i = 0; i < 4; i++) updateSlotUI(i, "");
+        }
+
+        // Realtime Sync for Header Settings
+        db.collection('settings').doc('general').onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('setBrandTitle').value = data.brandTitle || '';
+                document.getElementById('setBrandSub').value = data.brandSub || '';
+                document.getElementById('setPhone').value = data.phone || '';
+            }
+        });
+
+        document.getElementById('settingsForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newSettings = {
+                brandTitle: document.getElementById('setBrandTitle').value,
+                brandSub: document.getElementById('setBrandSub').value,
+                phone: document.getElementById('setPhone').value.replace(/[^0-9]/g, '')
+            };
+            await db.collection('settings').doc('general').set(newSettings, { merge: true });
+            alert("ڕێکخستنێن سەرێ وێبسایتی د فایەربەیسێ دا هاتنە پاشکەوتکرن!");
+        };
+
+        // Dark Theme
+        const themeBtn = document.getElementById('themeToggle');
+        if (localStorage.getItem('cosmetics_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.textContent = '☀️';
+        }
+
+        themeBtn.onclick = () => {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('cosmetics_theme', 'light');
+                themeBtn.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('cosmetics_theme', 'dark');
+                themeBtn.textContent = '☀️';
+            }
+        };
+    </script>
+</body>
+</html>
