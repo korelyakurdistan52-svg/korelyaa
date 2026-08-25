@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KORELYA KURDISTAN | کاتالۆگێ جوانکاریێ</title>
+    <title>KORELYA KURDISTAN</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Firebase Realtime Database SDK -->
@@ -21,9 +21,9 @@
             --profit-color: #10b981;
             --profit-bg: #ecfdf5;
             --border-color: #e2e4e8;
-            --shadow: 0 8px 24px rgba(0,0,0,0.05);
+            --shadow: 0 8px 24px rgba(0,0,0,0.06);
             --header-bg: rgba(255, 255, 255, 0.95);
-            --modal-overlay: rgba(0, 0, 0, 0.7);
+            --modal-overlay: rgba(0, 0, 0, 0.75);
         }
 
         [data-theme="dark"] {
@@ -38,7 +38,7 @@
             --border-color: #2b2b32;
             --shadow: 0 8px 24px rgba(0,0,0,0.4);
             --header-bg: rgba(26, 26, 30, 0.95);
-            --modal-overlay: rgba(0, 0, 0, 0.85);
+            --modal-overlay: rgba(0, 0, 0, 0.88);
         }
 
         * {
@@ -49,12 +49,19 @@
 
         body {
             background: var(--bg-color); color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* Top Header */
+        /* LTR Fix for Phone Numbers */
+        .ltr-phone {
+            direction: ltr !important;
+            unicode-bidi: isolate;
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+        }
+
+        /* Header */
         header {
             position: sticky; top: 0; z-index: 100;
             background: var(--header-bg); backdrop-filter: blur(14px);
@@ -63,7 +70,7 @@
         }
 
         .brand h1 {
-            font-size: 21px; font-weight: 900; color: var(--accent);
+            font-size: 22px; font-weight: 900; color: var(--accent);
             letter-spacing: 0.8px;
         }
         .brand p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
@@ -72,12 +79,20 @@
             display: flex; align-items: center; gap: 10px;
         }
 
+        /* Luxury Cart Button */
         .cart-header-btn {
-            background: var(--accent); color: #ffffff;
-            border: none; padding: 8px 16px; border-radius: 20px;
-            font-size: 13px; font-weight: 800; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 4px 12px rgba(178,117,86,0.3);
+            background: linear-gradient(135deg, var(--accent), #94583b);
+            color: #ffffff; border: none; padding: 8px 18px; border-radius: 25px;
+            font-size: 13.5px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 14px rgba(178,117,86,0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cart-header-btn:active { transform: scale(0.96); }
+
+        .cart-badge {
+            background: #ffffff; color: var(--accent);
+            padding: 2px 7px; border-radius: 12px; font-size: 12px; font-weight: 900;
         }
 
         .theme-btn {
@@ -87,33 +102,20 @@
             font-size: 17px; box-shadow: var(--shadow);
         }
 
-        /* Controls */
+        /* Search Box (Clean, without category bar) */
         .controls {
-            padding: 16px 25px; display: flex; flex-direction: column;
-            gap: 12px; max-width: 1500px; margin: 0 auto; width: 100%;
+            padding: 16px 25px; max-width: 1500px; margin: 0 auto; width: 100%;
         }
 
         .search-box input {
-            width: 100%; padding: 12px 18px; border-radius: 12px;
+            width: 100%; padding: 13px 20px; border-radius: 14px;
             border: 1px solid var(--border-color); background: var(--card-bg);
-            color: var(--text-main); font-size: 14px; outline: none;
+            color: var(--text-main); font-size: 14.5px; outline: none;
+            box-shadow: var(--shadow);
         }
+        .search-box input:focus { border-color: var(--accent); }
 
-        .category-scroll { display: flex; gap: 8px; overflow-x: auto; }
-        .category-scroll::-webkit-scrollbar { display: none; }
-
-        .cat-btn {
-            padding: 7px 16px; border-radius: 20px;
-            border: 1px solid var(--border-color); background: var(--card-bg);
-            color: var(--text-main); font-size: 13px; font-weight: 600;
-            cursor: pointer; white-space: nowrap;
-        }
-
-        .cat-btn.active {
-            background: var(--accent); color: #fff; border-color: var(--accent);
-        }
-
-        /* 4 POSTS IN A ROW FOR IPAD */
+        /* 4 Posts in a Row for iPad */
         .product-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 16px; padding: 10px 25px; max-width: 1500px; margin: 0 auto; width: 100%;
@@ -138,18 +140,18 @@
 
         .badge {
             position: absolute; top: 10px; right: 10px;
-            background: rgba(0, 0, 0, 0.7); color: #fff;
+            background: rgba(0, 0, 0, 0.75); color: #fff;
             padding: 3px 9px; border-radius: 12px; font-size: 11px;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px); font-weight: 700;
         }
 
         .card-body {
             padding: 12px 14px; display: flex; flex-direction: column;
-            flex-grow: 1; justify-content: space-between;
+            flex-grow: 1; justify-content: space-between; gap: 8px;
         }
 
         .title {
-            font-size: 15px; font-weight: 700; margin-bottom: 4px;
+            font-size: 15px; font-weight: 700;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
@@ -157,12 +159,12 @@
             font-size: 12px; color: var(--text-sub);
             display: -webkit-box; -webkit-line-clamp: 2;
             -webkit-box-orient: vertical; overflow: hidden;
-            line-height: 1.4; margin-bottom: 8px;
+            line-height: 1.4;
         }
 
         .pricing-box {
             background: var(--bg-color); border-radius: 10px;
-            padding: 8px 10px; margin-top: auto; margin-bottom: 8px;
+            padding: 8px 10px; margin-top: auto;
         }
         .price-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
         .buy-price { font-weight: 800; color: var(--accent); }
@@ -172,12 +174,33 @@
             padding: 2px 6px; border-radius: 6px; font-weight: 700; display: inline-block;
         }
 
-        .card-add-btn {
-            background: var(--accent-light); color: var(--accent);
-            border: 1px solid var(--accent-light); padding: 7px;
-            border-radius: 8px; font-size: 12px; font-weight: 700;
-            cursor: pointer; text-align: center; width: 100%;
+        /* Quantity Counter Directly on the Card */
+        .card-qty-row {
+            display: flex; align-items: center; gap: 6px; margin-top: 4px;
         }
+
+        .qty-picker {
+            display: flex; align-items: center; background: var(--bg-color);
+            border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+        }
+
+        .qty-picker button {
+            width: 28px; height: 32px; border: none; background: transparent;
+            color: var(--text-main); font-weight: 900; font-size: 15px; cursor: pointer;
+        }
+
+        .qty-picker input {
+            width: 32px; height: 32px; border: none; background: transparent;
+            color: var(--text-main); text-align: center; font-weight: 800; font-size: 13px; outline: none;
+        }
+
+        .card-add-btn {
+            flex: 1; background: var(--accent-light); color: var(--accent);
+            border: 1px solid var(--accent-light); height: 32px; border-radius: 8px;
+            font-size: 12px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .card-add-btn:active { background: var(--accent); color: #fff; }
 
         /* MODAL POPUP */
         .modal-overlay {
@@ -231,12 +254,11 @@
         }
         .features-list li::before { content: "✓"; color: var(--accent); font-weight: bold; }
 
-        .modal-btns {
-            display: flex; flex-direction: column; gap: 8px; margin-top: 15px;
+        .modal-qty-action {
+            display: flex; gap: 10px; align-items: center; margin-top: 15px;
         }
-
         .modal-cart-btn {
-            background: var(--accent); color: #fff; border: none; padding: 12px;
+            flex: 1; background: var(--accent); color: #fff; border: none; padding: 12px;
             border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer;
         }
 
@@ -257,8 +279,8 @@
             border: 1px solid var(--border-color);
         }
 
-        .qty-btn {
-            padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border-color);
+        .cart-qty-btn {
+            padding: 2px 10px; border-radius: 6px; border: 1px solid var(--border-color);
             background: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;
         }
 
@@ -273,9 +295,7 @@
         .site-footer {
             background: var(--card-bg);
             border-top: 1px solid var(--border-color);
-            padding: 25px 20px;
-            text-align: center;
-            margin-top: 40px;
+            padding: 25px 20px; text-align: center; margin-top: 40px;
         }
 
         .footer-brand {
@@ -284,14 +304,14 @@
 
         .dev-box {
             display: inline-flex; flex-direction: column; align-items: center;
-            gap: 4px; background: var(--bg-color); padding: 10px 20px;
-            border-radius: 14px; border: 1px solid var(--border-color);
+            gap: 4px; background: var(--bg-color); padding: 12px 24px;
+            border-radius: 16px; border: 1px solid var(--border-color);
         }
 
         .dev-label { font-size: 11.5px; color: var(--text-sub); font-weight: 600; }
-        .dev-name { font-size: 14.5px; font-weight: 800; color: var(--text-main); }
+        .dev-name { font-size: 15px; font-weight: 900; color: var(--text-main); }
         .dev-phone {
-            font-size: 13px; font-weight: 700; color: var(--accent);
+            font-size: 13.5px; font-weight: 700; color: var(--accent);
             text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
         }
     </style>
@@ -306,23 +326,17 @@
         </div>
         <div class="header-actions">
             <button class="cart-header-btn" id="openCartBtn">
-                🛒 سەلک (<span id="cartCount">0</span>)
+                <span>🛍️ سەلک</span>
+                <span class="cart-badge" id="cartCount">0</span>
             </button>
             <button class="theme-btn" id="themeToggle">🌙</button>
         </div>
     </header>
 
+    <!-- Clean Search Bar -->
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 ل ناڤێ مەوادی، کۆدی یان بەشەکێ بگەڕە...">
-        </div>
-
-        <div class="category-scroll">
-            <button class="cat-btn active" data-cat="all">هەمی بەرهەم</button>
-            <button class="cat-btn" data-cat="hair">شامپۆ و پرچ (Hair Care)</button>
-            <button class="cat-btn" data-cat="skincare">پێست و کرێم (Skin Care)</button>
-            <button class="cat-btn" data-cat="makeup">مەیک ئەپ (Makeup)</button>
-            <button class="cat-btn" data-cat="perfume">عەتر (Perfume)</button>
+            <input type="text" id="searchInput" placeholder="🔍 ل ناڤێ مەوادی یان کۆدی بگەڕە...">
         </div>
     </div>
 
@@ -364,7 +378,12 @@
                     <p style="font-size: 13.5px; line-height: 1.5; color: var(--text-sub);" id="modalDesc"></p>
                     <ul class="features-list" id="modalFeatures"></ul>
 
-                    <div class="modal-btns">
+                    <div class="modal-qty-action">
+                        <div class="qty-picker">
+                            <button onclick="adjustModalQty(-1)">−</button>
+                            <input type="number" id="modalQtyInput" value="1" min="1">
+                            <button onclick="adjustModalQty(1)">+</button>
+                        </div>
                         <button class="modal-cart-btn" id="modalAddCartBtn">🛒 زێدەکرن بۆ سەلکێ</button>
                     </div>
                 </div>
@@ -376,7 +395,7 @@
     <div class="modal-overlay" id="cartModal">
         <div class="modal-content cart-modal-content">
             <button class="close-btn" id="closeCartModal">✕</button>
-            <h2 style="font-size: 18px; font-weight: 800;">سەلکا داخوازیێن تە 🛒</h2>
+            <h2 style="font-size: 18px; font-weight: 800;">سەلکا داخوازیێن تە 🛍️</h2>
             
             <div class="cart-list" id="cartListContainer"></div>
 
@@ -393,13 +412,15 @@
         </div>
     </div>
 
-    <!-- FOOTER (DEVELOPER: OMED ABDULWAHID) -->
+    <!-- FOOTER (DEVELOPER: OMED ABDULWAHID - LTR FIXED) -->
     <footer class="site-footer">
         <div class="footer-brand">KORELYA KURDISTAN</div>
         <div class="dev-box">
             <span class="dev-label">Designed & Developed by</span>
             <span class="dev-name">Omed Abdulwahid</span>
-            <a href="https://wa.me/9647507100238" target="_blank" class="dev-phone">📞 0750 710 0238</a>
+            <a href="https://wa.me/9647507100238" target="_blank" class="dev-phone">
+                📞 <span class="ltr-phone">0750 710 0238</span>
+            </a>
         </div>
     </footer>
 
@@ -423,6 +444,12 @@
         let cart = [];
         let currentModalProduct = null;
         const grid = document.getElementById('gridContainer');
+
+        function formatMoney(val, curr) {
+            if (val === null || val === undefined) return '';
+            const symbol = curr === 'IQD' ? ' د.ع' : '$';
+            return curr === 'IQD' ? Number(val).toLocaleString() + symbol : symbol + Number(val).toLocaleString();
+        }
 
         // Settings Realtime
         db.ref('settings').on('value', snapshot => {
@@ -454,6 +481,7 @@
             }
 
             items.forEach(p => {
+                const curr = p.currency || 'USD';
                 const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
                 const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
                 const hasProfit = hasBuy && hasSell;
@@ -463,9 +491,9 @@
                 if (hasBuy || hasSell) {
                     pricingHtml = `
                         <div class="pricing-box">
-                            ${hasBuy ? `<div class="price-row"><span>کڕین (جملە):</span><span class="buy-price">$${p.buyPrice}</span></div>` : ''}
-                            ${hasSell ? `<div class="price-row"><span>فرۆتن (موفرەد):</span><span class="sell-price">$${p.sellPrice}</span></div>` : ''}
-                            ${hasProfit ? `<div class="profit-badge">قازانج: +$${profit}</div>` : ''}
+                            ${hasBuy ? `<div class="price-row"><span>کڕین (جملە):</span><span class="buy-price">${formatMoney(p.buyPrice, curr)}</span></div>` : ''}
+                            ${hasSell ? `<div class="price-row"><span>فرۆتن (موفرەد):</span><span class="sell-price">${formatMoney(p.sellPrice, curr)}</span></div>` : ''}
+                            ${hasProfit ? `<div class="profit-badge">قازانج: +${formatMoney(profit, curr)}</div>` : ''}
                         </div>
                     `;
                 }
@@ -480,31 +508,63 @@
                         ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
                     </div>
                     <div class="card-body">
-                        <div class="title">${p.name}</div>
-                        ${p.shortDesc ? `<div class="desc-preview">${p.shortDesc}</div>` : ''}
+                        <div>
+                            <div class="title">${p.name}</div>
+                            ${p.shortDesc ? `<div class="desc-preview">${p.shortDesc}</div>` : ''}
+                        </div>
                         ${pricingHtml}
-                        <button class="card-add-btn" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 زێدەکرن بۆ سەلکێ</button>
+                        <div class="card-qty-row" onclick="event.stopPropagation()">
+                            <div class="qty-picker">
+                                <button onclick="adjustCardQty('${p.id}', -1)">−</button>
+                                <input type="number" id="qty-${p.id}" value="1" min="1">
+                                <button onclick="adjustCardQty('${p.id}', 1)">+</button>
+                            </div>
+                            <button class="card-add-btn" onclick="addCardQtyToCart('${p.id}')">🛒 سەلک</button>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Cart Actions
-        window.addToCart = function(id) {
+        // Card Qty Picker
+        window.adjustCardQty = function(id, delta) {
+            const input = document.getElementById(`qty-${id}`);
+            if (input) {
+                let val = parseInt(input.value) || 1;
+                val = Math.max(1, val + delta);
+                input.value = val;
+            }
+        };
+
+        window.addCardQtyToCart = function(id) {
+            const input = document.getElementById(`qty-${id}`);
+            const qty = input ? (parseInt(input.value) || 1) : 1;
+            addToCartWithQty(id, qty);
+        };
+
+        window.adjustModalQty = function(delta) {
+            const input = document.getElementById('modalQtyInput');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, val + delta);
+            input.value = val;
+        };
+
+        function addToCartWithQty(id, qty) {
             const item = products.find(x => x.id === id);
             if (!item) return;
             const found = cart.find(x => x.id === id);
-            if (found) found.qty += 1;
-            else cart.push({ ...item, qty: 1 });
+            if (found) found.qty += qty;
+            else cart.push({ ...item, qty: qty });
             updateCartCount();
-        };
+        }
 
         function updateCartCount() {
             const count = cart.reduce((sum, i) => sum + i.qty, 0);
             document.getElementById('cartCount').textContent = count;
         }
 
+        // Cart Drawer
         document.getElementById('openCartBtn').onclick = () => {
             renderCartModal();
             document.getElementById('cartModal').classList.add('active');
@@ -522,28 +582,36 @@
                 return;
             }
 
-            let total = 0;
+            let totalUSD = 0;
+            let totalIQD = 0;
+
             cart.forEach(item => {
+                const curr = item.currency || 'USD';
                 const itemPrice = item.buyPrice || item.sellPrice || 0;
                 const sub = itemPrice * item.qty;
-                total += sub;
+                if (curr === 'IQD') totalIQD += sub;
+                else totalUSD += sub;
 
                 const div = document.createElement('div');
                 div.className = 'cart-item';
                 div.innerHTML = `
                     <div>
                         <div style="font-weight: 700; font-size: 14px;">${item.name}</div>
-                        <div style="font-size: 12px; color: var(--text-sub);">${item.code || ''} | $${itemPrice} × ${item.qty}</div>
+                        <div style="font-size: 12px; color: var(--text-sub);">${item.code || ''} | ${formatMoney(itemPrice, curr)} × ${item.qty}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-weight: 800; color: var(--accent);">$${sub}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                        <span style="font-weight: 800; color: var(--accent);">${formatMoney(sub, curr)}</span>
+                        <button class="cart-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        <button class="cart-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
                     </div>
                 `;
                 container.appendChild(div);
             });
-            document.getElementById('cartTotalSum').textContent = "$" + total;
+
+            let totalText = [];
+            if (totalUSD > 0) totalText.push(`$${totalUSD.toLocaleString()}`);
+            if (totalIQD > 0) totalText.push(`${totalIQD.toLocaleString()} د.ع`);
+            document.getElementById('cartTotalSum').textContent = totalText.join(' + ') || '$0';
         }
 
         window.changeQty = function(id, delta) {
@@ -563,17 +631,26 @@
                 return;
             }
             let msg = `سلاڤ و ڕێز، من ئەڤ داخوازیە ژ کاتالۆگێ *KORELYA KURDISTAN* یا هەڵبژارتی:\n\n`;
-            let total = 0;
+            let totalUSD = 0;
+            let totalIQD = 0;
+
             cart.forEach((i, idx) => {
+                const curr = i.currency || 'USD';
                 const price = i.buyPrice || i.sellPrice || 0;
                 const sub = price * i.qty;
-                total += sub;
+                if (curr === 'IQD') totalIQD += sub;
+                else totalUSD += sub;
+
                 msg += `${idx + 1}. *${i.name}* ${i.code ? `(${i.code})` : ''}\n`;
                 msg += `   - عەدەد: ${i.qty}\n`;
-                msg += `   - نرخ: $${price} (کۆم: $${sub})\n\n`;
+                msg += `   - نرخ: ${formatMoney(price, curr)} (کۆم: ${formatMoney(sub, curr)})\n\n`;
             });
+
             msg += `--------------------------\n`;
-            msg += `💰 *کۆژمێ گشتی: $${total}*\n`;
+            let totalStr = [];
+            if (totalUSD > 0) totalStr.push(`$${totalUSD.toLocaleString()}`);
+            if (totalIQD > 0) totalStr.push(`${totalIQD.toLocaleString()} د.ع`);
+            msg += `💰 *کۆژمێ گشتی: ${totalStr.join(' + ')}*\n`;
             msg += `تکایە داخوازیێ پشتڕاست بکەنەڤە.`;
 
             window.open(`https://wa.me/${ORDER_WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -582,7 +659,9 @@
         // Modal Open
         function openModal(p) {
             currentModalProduct = p;
+            const curr = p.currency || 'USD';
             document.getElementById('modalTitle').textContent = p.name;
+            document.getElementById('modalQtyInput').value = 1;
             
             const codeEl = document.getElementById('modalCode');
             if (p.code) {
@@ -601,17 +680,17 @@
                 pricingBox.style.display = 'block';
                 if (hasBuy) {
                     buyRow.style.display = 'flex';
-                    document.getElementById('modalBuyPrice').textContent = "$" + p.buyPrice;
+                    document.getElementById('modalBuyPrice').textContent = formatMoney(p.buyPrice, curr);
                 } else buyRow.style.display = 'none';
 
                 if (hasSell) {
                     sellRow.style.display = 'flex';
-                    document.getElementById('modalSellPrice').textContent = "$" + p.sellPrice;
+                    document.getElementById('modalSellPrice').textContent = formatMoney(p.sellPrice, curr);
                 } else sellRow.style.display = 'none';
 
                 if (hasBuy && hasSell) {
                     profitRow.style.display = 'flex';
-                    document.getElementById('modalProfit').textContent = "+$" + (p.sellPrice - p.buyPrice);
+                    document.getElementById('modalProfit').textContent = "+" + formatMoney(p.sellPrice - p.buyPrice, curr);
                 } else profitRow.style.display = 'none';
             } else pricingBox.style.display = 'none';
 
@@ -661,25 +740,18 @@
         };
 
         document.getElementById('modalAddCartBtn').onclick = () => {
-            if (currentModalProduct) addToCart(currentModalProduct.id);
+            if (currentModalProduct) {
+                const qty = parseInt(document.getElementById('modalQtyInput').value) || 1;
+                addToCartWithQty(currentModalProduct.id, qty);
+            }
             document.getElementById('productModal').classList.remove('active');
         };
 
-        // Search & Filters
+        // Search
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase();
             const res = products.filter(p => p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q)));
             renderProducts(res);
-        });
-
-        document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const cat = btn.getAttribute('data-cat');
-                if (cat === 'all') renderProducts(products);
-                else renderProducts(products.filter(p => p.category === cat));
-            };
         });
 
         // Theme Toggle
