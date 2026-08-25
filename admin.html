@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KORELYA KURDISTAN</title>
+    <title>ئەدمین پانێڵ | KORELYA KURDISTAN</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Firebase Realtime Database SDK -->
@@ -12,18 +12,17 @@
 
     <style>
         :root {
-            --bg-color: #f6f7f9;
+            --bg-color: #f4f5f8;
             --card-bg: #ffffff;
             --text-main: #141416;
             --text-sub: #6e7179;
             --accent: #b27556;
             --accent-light: #f7ede8;
-            --profit-color: #10b981;
-            --profit-bg: #ecfdf5;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
             --border-color: #e2e4e8;
             --shadow: 0 8px 24px rgba(0,0,0,0.06);
             --header-bg: rgba(255, 255, 255, 0.95);
-            --modal-overlay: rgba(0, 0, 0, 0.75);
         }
 
         [data-theme="dark"] {
@@ -33,12 +32,11 @@
             --text-sub: #9e9ea6;
             --accent: #d89679;
             --accent-light: #2c221e;
-            --profit-color: #34d399;
-            --profit-bg: #064e3b;
+            --danger: #f87171;
+            --danger-bg: #450a0a;
             --border-color: #2b2b32;
             --shadow: 0 8px 24px rgba(0,0,0,0.4);
             --header-bg: rgba(26, 26, 30, 0.95);
-            --modal-overlay: rgba(0, 0, 0, 0.88);
         }
 
         * {
@@ -49,384 +47,315 @@
 
         body {
             background: var(--bg-color); color: var(--text-main);
-            min-height: 100vh; display: flex; flex-direction: column;
+            padding-bottom: 95px;
         }
 
-        /* LTR Fix for Phone Numbers */
         .ltr-phone {
-            direction: ltr !important;
-            unicode-bidi: isolate;
-            display: inline-block;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 700;
+            direction: ltr !important; unicode-bidi: isolate; display: inline-block;
         }
 
-        /* Header */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-color); z-index: 9999;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 24px; padding: 35px 25px; width: 100%; max-width: 380px;
+            text-align: center; box-shadow: var(--shadow);
+        }
+
+        .login-icon {
+            width: 65px; height: 65px; background: var(--accent-light);
+            color: var(--accent); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px auto;
+        }
+
+        .login-input {
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--text-main); font-size: 18px; text-align: center;
+            letter-spacing: 4px; outline: none; margin: 15px 0; font-weight: bold;
+        }
+
+        .login-input:focus { border-color: var(--accent); }
+
+        .login-btn {
+            background: var(--accent); color: #fff; border: none; padding: 13px;
+            border-radius: 12px; width: 100%; font-size: 15px; font-weight: 800; cursor: pointer;
+        }
+
+        .error-text { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
+
         header {
             position: sticky; top: 0; z-index: 100;
             background: var(--header-bg); backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 14px 25px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color); padding: 14px 25px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .brand h1 {
-            font-size: 22px; font-weight: 900; color: var(--accent);
-            letter-spacing: 0.8px;
-        }
-        .brand p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-
-        .header-actions {
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        /* Luxury Cart Button */
-        .cart-header-btn {
-            background: linear-gradient(135deg, var(--accent), #94583b);
-            color: #ffffff; border: none; padding: 8px 18px; border-radius: 25px;
-            font-size: 13.5px; font-weight: 800; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 14px rgba(178,117,86,0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .cart-header-btn:active { transform: scale(0.96); }
-
-        .cart-badge {
-            background: #ffffff; color: var(--accent);
-            padding: 2px 7px; border-radius: 12px; font-size: 12px; font-weight: 900;
-        }
-
-        .theme-btn {
+        .header-btn {
             background: var(--card-bg); border: 1px solid var(--border-color);
-            color: var(--text-main); width: 40px; height: 40px; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 17px; box-shadow: var(--shadow);
+            color: var(--text-main); padding: 7px 14px; border-radius: 10px;
+            cursor: pointer; font-size: 13px; font-weight: 700; text-decoration: none;
+            display: flex; align-items: center; gap: 6px;
         }
 
-        /* Search Box (Clean, without category bar) */
-        .controls {
-            padding: 16px 25px; max-width: 1500px; margin: 0 auto; width: 100%;
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .form-card {
+            background: var(--card-bg); border-radius: 18px;
+            border: 1px solid var(--border-color); padding: 22px; box-shadow: var(--shadow);
         }
 
-        .search-box input {
-            width: 100%; padding: 13px 20px; border-radius: 14px;
-            border: 1px solid var(--border-color); background: var(--card-bg);
-            color: var(--text-main); font-size: 14.5px; outline: none;
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+        @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        label { font-size: 13px; font-weight: 700; color: var(--text-sub); }
+
+        input, select, textarea {
+            width: 100%; padding: 11px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-main); font-size: 14px; outline: none;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+        .photo-upload-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; margin-top: 8px; margin-bottom: 16px;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1 / 1; border-radius: 12px; border: 2px dashed var(--border-color);
+            background: var(--bg-color); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; position: relative;
+            overflow: hidden; text-align: center; padding: 5px;
+        }
+
+        .photo-slot.has-image { border-style: solid; border-color: var(--accent); }
+        .photo-slot img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .photo-slot input[type="file"] { display: none; }
+        .photo-slot span { font-size: 11px; color: var(--text-sub); z-index: 1; font-weight: 600; }
+        .photo-slot .slot-icon { font-size: 20px; margin-bottom: 2px; }
+
+        .btn-submit {
+            background: var(--accent); color: #fff; border: none;
+            padding: 14px; border-radius: 12px; width: 100%;
+            font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+        }
+
+        .admin-product-item {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
             box-shadow: var(--shadow);
         }
-        .search-box input:focus { border-color: var(--accent); }
+        .item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .item-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; background: #eee; flex-shrink: 0; }
+        .item-details { overflow: hidden; }
+        .item-details .name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* 4 Posts in a Row for iPad */
-        .product-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 16px; padding: 10px 25px; max-width: 1500px; margin: 0 auto; width: 100%;
-            flex: 1;
-        }
-        @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 650px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-
-        .card {
-            background: var(--card-bg); border-radius: 16px;
-            border: 1px solid var(--border-color); overflow: hidden;
-            box-shadow: var(--shadow); display: flex; flex-direction: column;
-            cursor: pointer; user-select: none; transition: transform 0.15s ease;
-        }
-        .card:active { transform: scale(0.98); }
-
-        .img-wrap {
-            position: relative; width: 100%; aspect-ratio: 1 / 1;
-            background: #e9ecef; overflow: hidden;
-        }
-        .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
-        .badge {
-            position: absolute; top: 10px; right: 10px;
-            background: rgba(0, 0, 0, 0.75); color: #fff;
-            padding: 3px 9px; border-radius: 12px; font-size: 11px;
-            backdrop-filter: blur(4px); font-weight: 700;
+        .item-actions-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .order-btn-group {
+            display: flex; gap: 4px; background: var(--bg-color);
+            padding: 4px; border-radius: 10px; border: 1px solid var(--border-color);
         }
 
-        .card-body {
-            padding: 12px 14px; display: flex; flex-direction: column;
-            flex-grow: 1; justify-content: space-between; gap: 8px;
+        .action-btn {
+            padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: none;
         }
+        .order-btn {
+            background: var(--card-bg); color: var(--text-main);
+            border: 1px solid var(--border-color); width: 32px; height: 32px; font-size: 13px; padding: 0;
+        }
+        .order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .edit-btn { background: var(--accent-light); color: var(--accent); }
+        .del-btn { background: var(--danger-bg); color: var(--danger); }
 
-        .title {
-            font-size: 15px; font-weight: 700;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .desc-preview {
-            font-size: 12px; color: var(--text-sub);
-            display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; overflow: hidden;
-            line-height: 1.4;
-        }
-
-        .pricing-box {
-            background: var(--bg-color); border-radius: 10px;
-            padding: 8px 10px; margin-top: auto;
-        }
-        .price-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
-        .buy-price { font-weight: 800; color: var(--accent); }
-        .sell-price { font-weight: 600; color: var(--text-sub); }
-        .profit-badge {
-            font-size: 11px; color: var(--profit-color); background: var(--profit-bg);
-            padding: 2px 6px; border-radius: 6px; font-weight: 700; display: inline-block;
-        }
-
-        /* Quantity Counter Directly on the Card */
-        .card-qty-row {
-            display: flex; align-items: center; gap: 6px; margin-top: 4px;
-        }
-
-        .qty-picker {
-            display: flex; align-items: center; background: var(--bg-color);
-            border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
-        }
-
-        .qty-picker button {
-            width: 28px; height: 32px; border: none; background: transparent;
-            color: var(--text-main); font-weight: 900; font-size: 15px; cursor: pointer;
-        }
-
-        .qty-picker input {
-            width: 32px; height: 32px; border: none; background: transparent;
-            color: var(--text-main); text-align: center; font-weight: 800; font-size: 13px; outline: none;
-        }
-
-        .card-add-btn {
-            flex: 1; background: var(--accent-light); color: var(--accent);
-            border: 1px solid var(--accent-light); height: 32px; border-radius: 8px;
-            font-size: 12px; font-weight: 800; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-        }
-        .card-add-btn:active { background: var(--accent); color: #fff; }
-
-        /* MODAL POPUP */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--modal-overlay); backdrop-filter: blur(8px);
-            z-index: 1000; display: none; justify-content: center;
-            align-items: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-
-        .modal-content {
-            background: var(--card-bg); border-radius: 22px; width: 100%;
-            max-width: 850px; max-height: 90vh; overflow-y: auto;
-            border: 1px solid var(--border-color); display: grid;
-            grid-template-columns: 1.1fr 1fr; gap: 25px; padding: 25px; position: relative;
-        }
-        @media (max-width: 768px) { .modal-content { grid-template-columns: 1fr; } }
-
-        .close-btn {
-            position: absolute; top: 15px; left: 15px;
-            background: var(--bg-color); border: 1px solid var(--border-color);
-            color: var(--text-main); width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; cursor: pointer; z-index: 10;
-        }
-
-        .main-img-box {
-            width: 100%; aspect-ratio: 1 / 1; border-radius: 14px;
-            overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 10px;
-        }
-        .main-img-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .thumbs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .thumb {
-            aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden;
-            border: 2px solid transparent; cursor: pointer; background: #eee;
-        }
-        .thumb.active { border-color: var(--accent); }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-        .modal-pricing {
-            background: var(--bg-color); border-radius: 12px;
-            padding: 12px 16px; margin: 15px 0;
-        }
-        .modal-pricing-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-
-        .features-list { list-style: none; margin: 15px 0; }
-        .features-list li {
-            font-size: 13px; margin-bottom: 5px; color: var(--text-sub);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .features-list li::before { content: "✓"; color: var(--accent); font-weight: bold; }
-
-        .modal-qty-action {
-            display: flex; gap: 10px; align-items: center; margin-top: 15px;
-        }
-        .modal-cart-btn {
-            flex: 1; background: var(--accent); color: #fff; border: none; padding: 12px;
-            border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer;
-        }
-
-        /* CART MODAL */
-        .cart-modal-content {
-            max-width: 520px; display: flex; flex-direction: column;
-            grid-template-columns: 1fr;
-        }
-
-        .cart-list {
-            max-height: 300px; overflow-y: auto; margin: 15px 0;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .cart-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-color); padding: 10px 14px; border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .cart-qty-btn {
-            padding: 2px 10px; border-radius: 6px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;
-        }
-
-        .whatsapp-order-btn {
-            background: #25D366; color: #ffffff; border: none; padding: 13px;
-            border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            width: 100%; margin-top: 15px;
-        }
-
-        /* FOOTER (DEVELOPER BRANDING) */
-        .site-footer {
-            background: var(--card-bg);
+        .bottom-taskbar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--header-bg); backdrop-filter: blur(16px);
             border-top: 1px solid var(--border-color);
-            padding: 25px 20px; text-align: center; margin-top: 40px;
+            display: flex; justify-content: space-around;
+            padding: 10px 0 14px 0; z-index: 999;
         }
-
-        .footer-brand {
-            font-size: 16px; font-weight: 900; color: var(--accent); margin-bottom: 8px;
+        .nav-item {
+            background: none; border: none; color: var(--text-sub);
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; cursor: pointer; font-size: 11.5px; font-weight: 700; flex: 1;
         }
-
-        .dev-box {
-            display: inline-flex; flex-direction: column; align-items: center;
-            gap: 4px; background: var(--bg-color); padding: 12px 24px;
-            border-radius: 16px; border: 1px solid var(--border-color);
-        }
-
-        .dev-label { font-size: 11.5px; color: var(--text-sub); font-weight: 600; }
-        .dev-name { font-size: 15px; font-weight: 900; color: var(--text-main); }
-        .dev-phone {
-            font-size: 13.5px; font-weight: 700; color: var(--accent);
-            text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
-        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item span.icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="brand">
-            <h1 id="brandTitleText">KORELYA KURDISTAN</h1>
-            <p id="brandSubText">کۆزمەتیک و کەرەستەیێن جوانکاریێ</p>
+    <!-- PASSWORD LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-icon">🔒</div>
+            <h2 style="font-size: 19px; font-weight: 800;">ژوورا ئەدمینی</h2>
+            <p style="font-size: 12.5px; color: var(--text-sub); margin-top: 4px;">تکایە پاسوۆردێ ژوورا کۆنترۆلێ لێبدە</p>
+
+            <form id="loginForm">
+                <input type="password" id="passInput" class="login-input" placeholder="••••" required autofocus>
+                <button type="submit" class="login-btn">چوونە ژوور ➔</button>
+                <div class="error-text" id="loginError">پاسوۆرد شاشە! دووبارە تاقی بکەڤە.</div>
+            </form>
         </div>
-        <div class="header-actions">
-            <button class="cart-header-btn" id="openCartBtn">
-                <span>🛍️ سەلک</span>
-                <span class="cart-badge" id="cartCount">0</span>
-            </button>
-            <button class="theme-btn" id="themeToggle">🌙</button>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <div style="font-weight: 900; font-size: 18px; color: var(--accent);">KORELYA KURDISTAN (ئەدمین)</div>
+        <div style="display: flex; gap: 8px;">
+            <a href="index.html" class="header-btn">👁️ کاتالۆگ</a>
+            <button class="header-btn" onclick="logoutAdmin()" title="دەرکەفتن">🚪</button>
+            <button class="header-btn" id="themeToggle">🌙</button>
         </div>
     </header>
 
-    <!-- Clean Search Bar -->
-    <div class="controls">
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 ل ناڤێ مەوادی یان کۆدی بگەڕە...">
-        </div>
-    </div>
+    <div class="container">
 
-    <!-- 4 Posts Grid -->
-    <main class="product-grid" id="gridContainer"></main>
+        <!-- ١. زێدەکرنا پۆستان -->
+        <div id="tab-add" class="tab-content active">
+            <div class="form-card">
+                <h2 id="formTitle" style="margin-bottom: 16px; font-size: 17px;">➕ زێدەکرنا بەرهەمێ نوو</h2>
+                <form id="productForm">
+                    <input type="hidden" id="editingKey" value="">
 
-    <!-- DETAILS MODAL -->
-    <div class="modal-overlay" id="productModal">
-        <div class="modal-content">
-            <button class="close-btn" id="closeModal">✕</button>
-            
-            <div class="gallery-box">
-                <div class="main-img-box">
-                    <img id="modalMainImg" src="" alt="">
-                </div>
-                <div class="thumbs-grid" id="modalThumbs"></div>
-            </div>
-
-            <div class="details-box">
-                <div>
-                    <h2 class="title" style="font-size: 20px;" id="modalTitle"></h2>
-                    <span style="font-size: 13px; color: var(--text-sub); display: block;" id="modalCode"></span>
-                    
-                    <div class="modal-pricing" id="modalPricingBox" style="display: none;">
-                        <div class="modal-pricing-row" id="modalBuyRow" style="display: none;">
-                            <span>بهایێ کڕینێ (جملە):</span>
-                            <span class="buy-price" style="font-size: 18px;" id="modalBuyPrice"></span>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>ناڤێ بەرهەمی: *</label>
+                            <input type="text" id="pName" required placeholder="بۆ نموونە: شامپۆیا Keratin">
                         </div>
-                        <div class="modal-pricing-row" id="modalSellRow" style="display: none;">
-                            <span>بهایێ فرۆتنێ (موفرەد):</span>
-                            <span class="sell-price" style="font-size: 16px;" id="modalSellPrice"></span>
-                        </div>
-                        <div class="modal-pricing-row" id="modalProfitRow" style="display: none; margin-bottom: 0;">
-                            <span>قازانجا دکانێ:</span>
-                            <span class="profit-badge" id="modalProfit"></span>
+                        <div class="form-group">
+                            <label>کۆدێ بەرهەمی (ئیختیاری):</label>
+                            <input type="text" id="pCode" placeholder="بۆ نموونە: #SH-01">
                         </div>
                     </div>
 
-                    <p style="font-size: 13.5px; line-height: 1.5; color: var(--text-sub);" id="modalDesc"></p>
-                    <ul class="features-list" id="modalFeatures"></ul>
-
-                    <div class="modal-qty-action">
-                        <div class="qty-picker">
-                            <button onclick="adjustModalQty(-1)">−</button>
-                            <input type="number" id="modalQtyInput" value="1" min="1">
-                            <button onclick="adjustModalQty(1)">+</button>
+                    <!-- هەڵبژارتنا جۆرێ دراوی (دۆلار یان دینار) -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>جۆرێ دراوی (دراوێ بها):</label>
+                            <select id="pCurrency">
+                                <option value="USD">💵 دۆلار ($ USD)</option>
+                                <option value="IQD">🇮🇶 دینارێ عێراقی (د.ع IQD)</option>
+                            </select>
                         </div>
-                        <button class="modal-cart-btn" id="modalAddCartBtn">🛒 زێدەکرن بۆ سەلکێ</button>
+                        <div class="form-group">
+                            <label>نیشان / باج (ئیختیاری):</label>
+                            <input type="text" id="pBadge" placeholder="ئۆرجینال، نوو، پڕفرۆش...">
+                        </div>
                     </div>
-                </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>بهایێ کڕینێ - جملە (ئیختیاری):</label>
+                            <input type="number" step="any" id="pBuyPrice" placeholder="دەست لێنەدە ئەگەر نینە">
+                        </div>
+                        <div class="form-group">
+                            <label>بهایێ فرۆتنێ - موفرەد (ئیختیاری):</label>
+                            <input type="number" step="any" id="pSellPrice" placeholder="دەست لێنەدە ئەگەر نینە">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>وەسفا کورت (ئیختیاری):</label>
+                        <input type="text" id="pShortDesc" placeholder="وەسفەکا کورت ل سەر کارتێ">
+                    </div>
+
+                    <div class="form-group">
+                        <label>تەفاسیل و وەسفا تەمام (ئیختیاری):</label>
+                        <textarea id="pFullDesc" rows="3" placeholder="وەسف و چەوانیا بکارئینانێ..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>تایبەتمەندی (ئیختیاری - ب فاریزە جیا بکە):</label>
+                        <input type="text" id="pFeatures" placeholder="1000ml, بێ سولفات, ئۆرجینال">
+                    </div>
+
+                    <!-- ٤ وێنە ژ ئایپادێ / مۆبایلێ -->
+                    <label style="margin-top: 10px; display: block;">وێنەیێن بەرهەمی (١ بۆ ٤ وێنە ژ ئایپادێ هەڵبژێرە):</label>
+                    <div class="photo-upload-grid">
+                        <div class="photo-slot" onclick="triggerUpload(0)" id="slot-0">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ سەرەکی</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 0)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(1)" id="slot-1">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٢</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 1)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(2)" id="slot-2">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٣</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 2)">
+                        </div>
+                        <div class="photo-slot" onclick="triggerUpload(3)" id="slot-3">
+                            <span class="slot-icon">📷</span>
+                            <span>وێنێ ٤</span>
+                            <input type="file" accept="image/*" onchange="handleImageSelect(event, 3)">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="saveBtn">☁️ پاشکەوتکرن د فایەربەیسێ دا</button>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- CART MODAL -->
-    <div class="modal-overlay" id="cartModal">
-        <div class="modal-content cart-modal-content">
-            <button class="close-btn" id="closeCartModal">✕</button>
-            <h2 style="font-size: 18px; font-weight: 800;">سەلکا داخوازیێن تە 🛍️</h2>
-            
-            <div class="cart-list" id="cartListContainer"></div>
+        <!-- ٢. پۆستێت من -->
+        <div id="tab-manage" class="tab-content">
+            <h2 style="margin-bottom: 14px; font-size: 17px;">📦 بەرهەمێن Realtime Database (<span id="totalCount">0</span>)</h2>
+            <div id="adminProductList"></div>
+        </div>
 
-            <div style="border-top: 1px dashed var(--border-color); padding-top: 12px;">
-                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 17px;">
-                    <span>کۆژمێ گشتی:</span>
-                    <span style="color: var(--accent);" id="cartTotalSum">$0</span>
-                </div>
+        <!-- ٣. دەستکاریا وێبسایتی -->
+        <div id="tab-settings" class="tab-content">
+            <div class="form-card">
+                <h2 style="margin-bottom: 16px; font-size: 17px;">⚙️ نڤیسینێن سەرێ پەیجی و ژمارە</h2>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label>ناڤێ سەرەکی (Title):</label>
+                        <input type="text" id="setBrandTitle" required value="KORELYA KURDISTAN">
+                    </div>
+                    <div class="form-group">
+                        <label>نڤیسینا ژێر ناڤی (Subtitle):</label>
+                        <input type="text" id="setBrandSub" value="کۆزمەتیک و کەرەستەیێن جوانکاریێ">
+                    </div>
+                    <div class="form-group">
+                        <label>ژمارا واتسئەپێ یا داخوازیان:</label>
+                        <input type="text" id="setPhone" placeholder="9647502406123">
+                    </div>
+                    <button type="submit" class="btn-submit">💾 پاشکەوتکرن</button>
+                </form>
             </div>
-
-            <button class="whatsapp-order-btn" id="sendWhatsAppOrderBtn">
-                📲 فرێکرنا داخوازیێ بۆ واتسئەپی
-            </button>
         </div>
+
     </div>
 
-    <!-- FOOTER (DEVELOPER: OMED ABDULWAHID - LTR FIXED) -->
-    <footer class="site-footer">
-        <div class="footer-brand">KORELYA KURDISTAN</div>
-        <div class="dev-box">
-            <span class="dev-label">Designed & Developed by</span>
-            <span class="dev-name">Omed Abdulwahid</span>
-            <a href="https://wa.me/9647507100238" target="_blank" class="dev-phone">
-                📞 <span class="ltr-phone">0750 710 0238</span>
-            </a>
-        </div>
-    </footer>
+    <!-- TASKBAR -->
+    <nav class="bottom-taskbar">
+        <button class="nav-item active" onclick="switchTab('tab-add', this)">
+            <span class="icon">➕</span>
+            <span>زێدەکرن</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-manage', this)">
+            <span class="icon">📦</span>
+            <span>پۆستێت من</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-settings', this)">
+            <span class="icon">⚙️</span>
+            <span>ڕێکخستن</span>
+        </button>
+    </nav>
 
     <script>
-        const ORDER_WHATSAPP_PHONE = "9647502406123";
-
         const firebaseConfig = {
           apiKey: "AIzaSyCq80sBc7ccLH31bUufiUP1El-GkJ-vqp8",
           authDomain: "korelya-kurdsitan.firebaseapp.com",
@@ -440,10 +369,86 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let products = [];
-        let cart = [];
-        let currentModalProduct = null;
-        const grid = document.getElementById('gridContainer');
+        const ADMIN_PASSWORD = "1234";
+
+        function initAuth() {
+            if (localStorage.getItem('admin_authenticated') === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        }
+        initAuth();
+
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            if (document.getElementById('passInput').value === ADMIN_PASSWORD) {
+                localStorage.setItem('admin_authenticated', 'true');
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('loginError').style.display = 'none';
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('passInput').value = '';
+            }
+        };
+
+        window.logoutAdmin = function() {
+            localStorage.removeItem('admin_authenticated');
+            location.reload();
+        };
+
+        let currentUploadedImages = ["", "", "", ""];
+        let allProductsCache = [];
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            el.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function triggerUpload(index) {
+            document.getElementById(`slot-${index}`).querySelector('input[type="file"]').click();
+        }
+
+        function handleImageSelect(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 600;
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > maxDim) { h = (h * maxDim) / w; w = maxDim; } }
+                    else { if (h > maxDim) { w = (w * maxDim) / h; h = maxDim; } }
+
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.70);
+                    currentUploadedImages[index] = compressedBase64;
+                    updateSlotUI(index, compressedBase64);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateSlotUI(index, src) {
+            const slot = document.getElementById(`slot-${index}`);
+            if (src) {
+                slot.classList.add('has-image');
+                slot.innerHTML = `<img src="${src}"><input type="file" accept="image/*" onchange="handleImageSelect(event, ${index})">`;
+            } else {
+                slot.classList.remove('has-image');
+                slot.innerHTML = `<span class="slot-icon">📷</span><span>وێنێ ${index + 1}</span><input type="file" accept="image/*" onchange="handleImageSelect(event, ${index})">`;
+            }
+        }
 
         function formatMoney(val, curr) {
             if (val === null || val === undefined) return '';
@@ -451,310 +456,198 @@
             return curr === 'IQD' ? Number(val).toLocaleString() + symbol : symbol + Number(val).toLocaleString();
         }
 
-        // Settings Realtime
-        db.ref('settings').on('value', snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('brandTitleText').textContent = data.brandTitle || 'KORELYA KURDISTAN';
-                document.getElementById('brandSubText').textContent = data.brandSub || 'کۆزمەتیک و کەرەستەیێن جوانکاریێ';
-            }
-        });
-
-        // Products Realtime
+        // Realtime Listener
         db.ref('products').on('value', snapshot => {
-            products = [];
+            allProductsCache = [];
             const data = snapshot.val();
             if (data) {
                 Object.keys(data).forEach(key => {
-                    products.push({ id: key, ...data[key] });
+                    allProductsCache.push({ key: key, ...data[key] });
                 });
-                products.sort((a, b) => (a.order || 0) - (b.order || 0));
+                allProductsCache.sort((a, b) => (a.order || 0) - (b.order || 0));
             }
-            renderProducts(products);
+            renderAdminList(allProductsCache);
         });
 
-        function renderProducts(items) {
-            grid.innerHTML = '';
-            if (items.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub); padding: 40px;">هیچ بەرهەمەک نینە.</p>';
-                return;
+        // Form Submit
+        document.getElementById('productForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = "⏳ خەریکە پاشکەوت دبیت...";
+
+            const editingKey = document.getElementById('editingKey').value;
+            const validImages = currentUploadedImages.filter(img => img && img.trim() !== "");
+            if (validImages.length === 0) {
+                validImages.push("https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&auto=format&fit=crop&q=80");
             }
 
-            items.forEach(p => {
-                const curr = p.currency || 'USD';
-                const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
-                const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
-                const hasProfit = hasBuy && hasSell;
-                const profit = hasProfit ? (p.sellPrice - p.buyPrice) : 0;
+            const buyVal = document.getElementById('pBuyPrice').value;
+            const sellVal = document.getElementById('pSellPrice').value;
+            const featStr = document.getElementById('pFeatures').value;
+            const features = featStr ? featStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-                let pricingHtml = '';
-                if (hasBuy || hasSell) {
-                    pricingHtml = `
-                        <div class="pricing-box">
-                            ${hasBuy ? `<div class="price-row"><span>کڕین (جملە):</span><span class="buy-price">${formatMoney(p.buyPrice, curr)}</span></div>` : ''}
-                            ${hasSell ? `<div class="price-row"><span>فرۆتن (موفرەد):</span><span class="sell-price">${formatMoney(p.sellPrice, curr)}</span></div>` : ''}
-                            ${hasProfit ? `<div class="profit-badge">قازانج: +${formatMoney(profit, curr)}</div>` : ''}
-                        </div>
-                    `;
+            const prodObj = {
+                name: document.getElementById('pName').value.trim(),
+                code: document.getElementById('pCode').value.trim(),
+                currency: document.getElementById('pCurrency').value,
+                buyPrice: buyVal !== "" ? parseFloat(buyVal) : null,
+                sellPrice: sellVal !== "" ? parseFloat(sellVal) : null,
+                badge: document.getElementById('pBadge').value.trim(),
+                shortDesc: document.getElementById('pShortDesc').value.trim(),
+                fullDesc: document.getElementById('pFullDesc').value.trim(),
+                features: features,
+                images: validImages
+            };
+
+            try {
+                if (editingKey) {
+                    await db.ref('products/' + editingKey).update(prodObj);
+                    alert("بەرهەم ب سەرکەفتی هاتە نووژەنکرن!");
+                } else {
+                    const currentTopOrder = allProductsCache.length > 0 ? (allProductsCache[0].order || 0) - 1 : 0;
+                    prodObj.order = currentTopOrder;
+                    await db.ref('products').push(prodObj);
+                    alert("بەرهەم ب سەرکەفتی هاتە زێدەکرن!");
                 }
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => openModal(p);
-
-                card.innerHTML = `
-                    <div class="img-wrap">
-                        <img src="${p.images[0]}" alt="${p.name}">
-                        ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="title">${p.name}</div>
-                            ${p.shortDesc ? `<div class="desc-preview">${p.shortDesc}</div>` : ''}
-                        </div>
-                        ${pricingHtml}
-                        <div class="card-qty-row" onclick="event.stopPropagation()">
-                            <div class="qty-picker">
-                                <button onclick="adjustCardQty('${p.id}', -1)">−</button>
-                                <input type="number" id="qty-${p.id}" value="1" min="1">
-                                <button onclick="adjustCardQty('${p.id}', 1)">+</button>
-                            </div>
-                            <button class="card-add-btn" onclick="addCardQtyToCart('${p.id}')">🛒 سەلک</button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // Card Qty Picker
-        window.adjustCardQty = function(id, delta) {
-            const input = document.getElementById(`qty-${id}`);
-            if (input) {
-                let val = parseInt(input.value) || 1;
-                val = Math.max(1, val + delta);
-                input.value = val;
+                resetForm();
+                switchTab('tab-manage', document.querySelectorAll('.nav-item')[1]);
+            } catch (err) {
+                alert("خەلەتەک ڕویدا: " + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = "☁️ پاشکەوتکرن د فایەربەیسێ دا";
             }
         };
 
-        window.addCardQtyToCart = function(id) {
-            const input = document.getElementById(`qty-${id}`);
-            const qty = input ? (parseInt(input.value) || 1) : 1;
-            addToCartWithQty(id, qty);
-        };
+        function renderAdminList(prods) {
+            const list = document.getElementById('adminProductList');
+            document.getElementById('totalCount').textContent = prods.length;
+            list.innerHTML = '';
 
-        window.adjustModalQty = function(delta) {
-            const input = document.getElementById('modalQtyInput');
-            let val = parseInt(input.value) || 1;
-            val = Math.max(1, val + delta);
-            input.value = val;
-        };
-
-        function addToCartWithQty(id, qty) {
-            const item = products.find(x => x.id === id);
-            if (!item) return;
-            const found = cart.find(x => x.id === id);
-            if (found) found.qty += qty;
-            else cart.push({ ...item, qty: qty });
-            updateCartCount();
-        }
-
-        function updateCartCount() {
-            const count = cart.reduce((sum, i) => sum + i.qty, 0);
-            document.getElementById('cartCount').textContent = count;
-        }
-
-        // Cart Drawer
-        document.getElementById('openCartBtn').onclick = () => {
-            renderCartModal();
-            document.getElementById('cartModal').classList.add('active');
-        };
-        document.getElementById('closeCartModal').onclick = () => {
-            document.getElementById('cartModal').classList.remove('active');
-        };
-
-        function renderCartModal() {
-            const container = document.getElementById('cartListContainer');
-            container.innerHTML = '';
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-sub); padding: 20px;">سەلک یا ڤالایە.</p>';
-                document.getElementById('cartTotalSum').textContent = "$0";
+            if (prods.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-sub); padding: 30px;">چ بەرهەم نەهاتینە زێدەکرن.</p>';
                 return;
             }
 
-            let totalUSD = 0;
-            let totalIQD = 0;
-
-            cart.forEach(item => {
-                const curr = item.currency || 'USD';
-                const itemPrice = item.buyPrice || item.sellPrice || 0;
-                const sub = itemPrice * item.qty;
-                if (curr === 'IQD') totalIQD += sub;
-                else totalUSD += sub;
-
+            prods.forEach((p, idx) => {
+                const curr = p.currency || 'USD';
                 const div = document.createElement('div');
-                div.className = 'cart-item';
+                div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <div>
-                        <div style="font-weight: 700; font-size: 14px;">${item.name}</div>
-                        <div style="font-size: 12px; color: var(--text-sub);">${item.code || ''} | ${formatMoney(itemPrice, curr)} × ${item.qty}</div>
+                    <div class="item-info">
+                        <img src="${p.images[0]}" class="item-img" alt="">
+                        <div class="item-details">
+                            <div class="name">${idx + 1}. ${p.name}</div>
+                            <div style="font-size: 12px; color: var(--text-sub);">
+                                ${p.code ? 'کۆد: ' + p.code : ''} 
+                                ${p.buyPrice !== null ? ' | کڕین: ' + formatMoney(p.buyPrice, curr) : ''}
+                                ${p.sellPrice !== null ? ' | فرۆتن: ' + formatMoney(p.sellPrice, curr) : ''}
+                            </div>
+                        </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-weight: 800; color: var(--accent);">${formatMoney(sub, curr)}</span>
-                        <button class="cart-qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                        <button class="cart-qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                    <div class="item-actions-group">
+                        <div class="order-btn-group">
+                            <button class="action-btn order-btn" title="سەرێ لیستێ" onclick="moveItemToTop(${idx})" ${idx === 0 ? 'disabled' : ''}>🔝</button>
+                            <button class="action-btn order-btn" title="ئێک پلە سەری" onclick="moveItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>⬆️</button>
+                            <button class="action-btn order-btn" title="ئێک پلە خواری" onclick="moveItem(${idx}, 1)" ${idx === prods.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        </div>
+                        <button class="action-btn edit-btn" onclick="startEdit('${p.key}')">✏️</button>
+                        <button class="action-btn del-btn" onclick="deleteProd('${p.key}')">🗑️</button>
                     </div>
                 `;
-                container.appendChild(div);
+                list.appendChild(div);
             });
-
-            let totalText = [];
-            if (totalUSD > 0) totalText.push(`$${totalUSD.toLocaleString()}`);
-            if (totalIQD > 0) totalText.push(`${totalIQD.toLocaleString()} د.ع`);
-            document.getElementById('cartTotalSum').textContent = totalText.join(' + ') || '$0';
         }
 
-        window.changeQty = function(id, delta) {
-            const item = cart.find(x => x.id === id);
-            if (item) {
-                item.qty += delta;
-                if (item.qty <= 0) cart = cart.filter(x => x.id !== id);
-            }
-            updateCartCount();
-            renderCartModal();
+        window.moveItem = async function(index, direction) {
+            const targetIdx = index + direction;
+            if (targetIdx < 0 || targetIdx >= allProductsCache.length) return;
+
+            const currentItem = allProductsCache[index];
+            const targetItem = allProductsCache[targetIdx];
+
+            const updates = {};
+            updates['products/' + currentItem.key + '/order'] = targetItem.order || targetIdx;
+            updates['products/' + targetItem.key + '/order'] = currentItem.order || index;
+
+            await db.ref().update(updates);
         };
 
-        // WhatsApp Order Send to 07502406123
-        document.getElementById('sendWhatsAppOrderBtn').onclick = () => {
-            if (cart.length === 0) {
-                alert("تکایە بەرهەمەکی هەڵبژێرە!");
-                return;
+        window.moveItemToTop = async function(index) {
+            if (index <= 0) return;
+            const item = allProductsCache[index];
+            const topOrder = (allProductsCache[0].order || 0) - 1;
+            await db.ref('products/' + item.key).update({ order: topOrder });
+        };
+
+        window.deleteProd = async function(key) {
+            if (confirm("ئەرێ تۆ پشتڕاستی دێ ڤی بەرهەمی ژێبەی؟")) {
+                await db.ref('products/' + key).remove();
             }
-            let msg = `سلاڤ و ڕێز، من ئەڤ داخوازیە ژ کاتالۆگێ *KORELYA KURDISTAN* یا هەڵبژارتی:\n\n`;
-            let totalUSD = 0;
-            let totalIQD = 0;
+        };
 
-            cart.forEach((i, idx) => {
-                const curr = i.currency || 'USD';
-                const price = i.buyPrice || i.sellPrice || 0;
-                const sub = price * i.qty;
-                if (curr === 'IQD') totalIQD += sub;
-                else totalUSD += sub;
+        window.startEdit = function(key) {
+            const p = allProductsCache.find(x => x.key === key);
+            if (!p) return;
 
-                msg += `${idx + 1}. *${i.name}* ${i.code ? `(${i.code})` : ''}\n`;
-                msg += `   - عەدەد: ${i.qty}\n`;
-                msg += `   - نرخ: ${formatMoney(price, curr)} (کۆم: ${formatMoney(sub, curr)})\n\n`;
+            document.getElementById('editingKey').value = key;
+            document.getElementById('formTitle').textContent = "✏️ دەستکاریا: " + p.name;
+            document.getElementById('saveBtn').textContent = "💾 نووژەنکرنا بەرهەمی";
+
+            document.getElementById('pName').value = p.name || '';
+            document.getElementById('pCode').value = p.code || '';
+            document.getElementById('pCurrency').value = p.currency || 'USD';
+            document.getElementById('pBuyPrice').value = p.buyPrice !== null ? p.buyPrice : '';
+            document.getElementById('pSellPrice').value = p.sellPrice !== null ? p.sellPrice : '';
+            document.getElementById('pBadge').value = p.badge || '';
+            document.getElementById('pShortDesc').value = p.shortDesc || '';
+            document.getElementById('pFullDesc').value = p.fullDesc || '';
+            document.getElementById('pFeatures').value = (p.features || []).join(', ');
+
+            currentUploadedImages = ["", "", "", ""];
+            (p.images || []).forEach((img, i) => {
+                if (i < 4) {
+                    currentUploadedImages[i] = img;
+                    updateSlotUI(i, img);
+                }
             });
+            for (let i = (p.images || []).length; i < 4; i++) {
+                updateSlotUI(i, "");
+            }
 
-            msg += `--------------------------\n`;
-            let totalStr = [];
-            if (totalUSD > 0) totalStr.push(`$${totalUSD.toLocaleString()}`);
-            if (totalIQD > 0) totalStr.push(`${totalIQD.toLocaleString()} د.ع`);
-            msg += `💰 *کۆژمێ گشتی: ${totalStr.join(' + ')}*\n`;
-            msg += `تکایە داخوازیێ پشتڕاست بکەنەڤە.`;
-
-            window.open(`https://wa.me/${ORDER_WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+            switchTab('tab-add', document.querySelectorAll('.nav-item')[0]);
         };
 
-        // Modal Open
-        function openModal(p) {
-            currentModalProduct = p;
-            const curr = p.currency || 'USD';
-            document.getElementById('modalTitle').textContent = p.name;
-            document.getElementById('modalQtyInput').value = 1;
-            
-            const codeEl = document.getElementById('modalCode');
-            if (p.code) {
-                codeEl.textContent = "کۆد: " + p.code;
-                codeEl.style.display = 'block';
-            } else codeEl.style.display = 'none';
-
-            const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
-            const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
-            const pricingBox = document.getElementById('modalPricingBox');
-            const buyRow = document.getElementById('modalBuyRow');
-            const sellRow = document.getElementById('modalSellRow');
-            const profitRow = document.getElementById('modalProfitRow');
-
-            if (hasBuy || hasSell) {
-                pricingBox.style.display = 'block';
-                if (hasBuy) {
-                    buyRow.style.display = 'flex';
-                    document.getElementById('modalBuyPrice').textContent = formatMoney(p.buyPrice, curr);
-                } else buyRow.style.display = 'none';
-
-                if (hasSell) {
-                    sellRow.style.display = 'flex';
-                    document.getElementById('modalSellPrice').textContent = formatMoney(p.sellPrice, curr);
-                } else sellRow.style.display = 'none';
-
-                if (hasBuy && hasSell) {
-                    profitRow.style.display = 'flex';
-                    document.getElementById('modalProfit').textContent = "+" + formatMoney(p.sellPrice - p.buyPrice, curr);
-                } else profitRow.style.display = 'none';
-            } else pricingBox.style.display = 'none';
-
-            const descEl = document.getElementById('modalDesc');
-            if (p.fullDesc) {
-                descEl.textContent = p.fullDesc;
-                descEl.style.display = 'block';
-            } else descEl.style.display = 'none';
-
-            const featList = document.getElementById('modalFeatures');
-            featList.innerHTML = '';
-            if (p.features && p.features.length > 0) {
-                featList.style.display = 'block';
-                p.features.forEach(f => {
-                    const li = document.createElement('li');
-                    li.textContent = f;
-                    featList.appendChild(li);
-                });
-            } else featList.style.display = 'none';
-
-            const mainImg = document.getElementById('modalMainImg');
-            const thumbs = document.getElementById('modalThumbs');
-            mainImg.src = p.images[0];
-            thumbs.innerHTML = '';
-
-            if (p.images.length > 1) {
-                thumbs.style.display = 'grid';
-                p.images.forEach((imgSrc, idx) => {
-                    const t = document.createElement('div');
-                    t.className = `thumb ${idx === 0 ? 'active' : ''}`;
-                    t.innerHTML = `<img src="${imgSrc}" alt="thumb">`;
-                    t.onclick = () => {
-                        mainImg.src = imgSrc;
-                        document.querySelectorAll('.thumb').forEach(el => el.classList.remove('active'));
-                        t.classList.add('active');
-                    };
-                    thumbs.appendChild(t);
-                });
-            } else thumbs.style.display = 'none';
-
-            document.getElementById('productModal').classList.add('active');
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('editingKey').value = "";
+            document.getElementById('formTitle').textContent = "➕ زێدەکرنا بەرهەمێ نوو";
+            document.getElementById('saveBtn').textContent = "☁️ پاشکەوتکرن د فایەربەیسێ دا";
+            currentUploadedImages = ["", "", "", ""];
+            for (let i = 0; i < 4; i++) updateSlotUI(i, "");
         }
 
-        document.getElementById('closeModal').onclick = () => document.getElementById('productModal').classList.remove('active');
-        document.getElementById('productModal').onclick = (e) => {
-            if (e.target.id === 'productModal') document.getElementById('productModal').classList.remove('active');
-        };
-
-        document.getElementById('modalAddCartBtn').onclick = () => {
-            if (currentModalProduct) {
-                const qty = parseInt(document.getElementById('modalQtyInput').value) || 1;
-                addToCartWithQty(currentModalProduct.id, qty);
+        db.ref('settings').on('value', snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('setBrandTitle').value = data.brandTitle || 'KORELYA KURDISTAN';
+                document.getElementById('setBrandSub').value = data.brandSub || 'کۆزمەتیک و کەرەستەیێن جوانکاریێ';
+                document.getElementById('setPhone').value = data.phone || '9647502406123';
             }
-            document.getElementById('productModal').classList.remove('active');
-        };
-
-        // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            const res = products.filter(p => p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q)));
-            renderProducts(res);
         });
 
-        // Theme Toggle
+        document.getElementById('settingsForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newSettings = {
+                brandTitle: document.getElementById('setBrandTitle').value,
+                brandSub: document.getElementById('setBrandSub').value,
+                phone: document.getElementById('setPhone').value.replace(/[^0-9]/g, '')
+            };
+            await db.ref('settings').set(newSettings);
+            alert("ڕێکخستنێن سەرێ وێبسایتی هاتنە نووژەنکرن!");
+        };
+
         const themeBtn = document.getElementById('themeToggle');
         if (localStorage.getItem('cosmetics_theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
