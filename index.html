@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmetics Catalog</title>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>KORELYA KURDISTAN | کاتالۆگێ جوانکاریێ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK (Realtime Database) -->
+    <!-- Firebase Realtime Database SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -22,7 +22,7 @@
             --profit-bg: #ecfdf5;
             --border-color: #e2e4e8;
             --shadow: 0 8px 24px rgba(0,0,0,0.05);
-            --header-bg: rgba(255, 255, 255, 0.94);
+            --header-bg: rgba(255, 255, 255, 0.95);
             --modal-overlay: rgba(0, 0, 0, 0.7);
         }
 
@@ -37,7 +37,7 @@
             --profit-bg: #064e3b;
             --border-color: #2b2b32;
             --shadow: 0 8px 24px rgba(0,0,0,0.4);
-            --header-bg: rgba(26, 26, 30, 0.94);
+            --header-bg: rgba(26, 26, 30, 0.95);
             --modal-overlay: rgba(0, 0, 0, 0.85);
         }
 
@@ -49,29 +49,48 @@
 
         body {
             background: var(--bg-color); color: var(--text-main);
-            padding-bottom: 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Top Header */
         header {
             position: sticky; top: 0; z-index: 100;
             background: var(--header-bg); backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 25px; display: flex; justify-content: space-between; align-items: center;
         }
 
-        .brand h1 { font-size: 21px; font-weight: 800; color: var(--accent); }
+        .brand h1 {
+            font-size: 21px; font-weight: 900; color: var(--accent);
+            letter-spacing: 0.8px;
+        }
         .brand p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+        .header-actions {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .cart-header-btn {
+            background: var(--accent); color: #ffffff;
+            border: none; padding: 8px 16px; border-radius: 20px;
+            font-size: 13px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 12px rgba(178,117,86,0.3);
+        }
 
         .theme-btn {
             background: var(--card-bg); border: 1px solid var(--border-color);
-            color: var(--text-main); width: 42px; height: 42px; border-radius: 50%;
+            color: var(--text-main); width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 18px; box-shadow: var(--shadow);
+            font-size: 17px; box-shadow: var(--shadow);
         }
 
+        /* Controls */
         .controls {
             padding: 16px 25px; display: flex; flex-direction: column;
-            gap: 12px; max-width: 1500px; margin: 0 auto;
+            gap: 12px; max-width: 1500px; margin: 0 auto; width: 100%;
         }
 
         .search-box input {
@@ -94,9 +113,11 @@
             background: var(--accent); color: #fff; border-color: var(--accent);
         }
 
+        /* 4 POSTS IN A ROW FOR IPAD */
         .product-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 16px; padding: 10px 25px; max-width: 1500px; margin: 0 auto;
+            gap: 16px; padding: 10px 25px; max-width: 1500px; margin: 0 auto; width: 100%;
+            flex: 1;
         }
         @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 650px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -107,7 +128,7 @@
             box-shadow: var(--shadow); display: flex; flex-direction: column;
             cursor: pointer; user-select: none; transition: transform 0.15s ease;
         }
-        .card:active { transform: scale(0.97); }
+        .card:active { transform: scale(0.98); }
 
         .img-wrap {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
@@ -141,7 +162,7 @@
 
         .pricing-box {
             background: var(--bg-color); border-radius: 10px;
-            padding: 8px 10px; margin-top: auto;
+            padding: 8px 10px; margin-top: auto; margin-bottom: 8px;
         }
         .price-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
         .buy-price { font-weight: 800; color: var(--accent); }
@@ -151,7 +172,14 @@
             padding: 2px 6px; border-radius: 6px; font-weight: 700; display: inline-block;
         }
 
-        /* MODAL */
+        .card-add-btn {
+            background: var(--accent-light); color: var(--accent);
+            border: 1px solid var(--accent-light); padding: 7px;
+            border-radius: 8px; font-size: 12px; font-weight: 700;
+            cursor: pointer; text-align: center; width: 100%;
+        }
+
+        /* MODAL POPUP */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--modal-overlay); backdrop-filter: blur(8px);
@@ -203,22 +231,85 @@
         }
         .features-list li::before { content: "✓"; color: var(--accent); font-weight: bold; }
 
-        .whatsapp-direct-btn {
-            background: #25D366; color: #ffffff; border: none; padding: 12px;
-            border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
+        .modal-btns {
+            display: flex; flex-direction: column; gap: 8px; margin-top: 15px;
+        }
+
+        .modal-cart-btn {
+            background: var(--accent); color: #fff; border: none; padding: 12px;
+            border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer;
+        }
+
+        /* CART MODAL */
+        .cart-modal-content {
+            max-width: 520px; display: flex; flex-direction: column;
+            grid-template-columns: 1fr;
+        }
+
+        .cart-list {
+            max-height: 300px; overflow-y: auto; margin: 15px 0;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-color); padding: 10px 14px; border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .qty-btn {
+            padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;
+        }
+
+        .whatsapp-order-btn {
+            background: #25D366; color: #ffffff; border: none; padding: 13px;
+            border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer;
             display: flex; justify-content: center; align-items: center; gap: 8px;
             width: 100%; margin-top: 15px;
+        }
+
+        /* FOOTER (DEVELOPER BRANDING) */
+        .site-footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 25px 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer-brand {
+            font-size: 16px; font-weight: 900; color: var(--accent); margin-bottom: 8px;
+        }
+
+        .dev-box {
+            display: inline-flex; flex-direction: column; align-items: center;
+            gap: 4px; background: var(--bg-color); padding: 10px 20px;
+            border-radius: 14px; border: 1px solid var(--border-color);
+        }
+
+        .dev-label { font-size: 11.5px; color: var(--text-sub); font-weight: 600; }
+        .dev-name { font-size: 14.5px; font-weight: 800; color: var(--text-main); }
+        .dev-phone {
+            font-size: 13px; font-weight: 700; color: var(--accent);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
         }
     </style>
 </head>
 <body>
 
+    <!-- Header -->
     <header>
         <div class="brand">
-            <h1 id="brandTitleText">LUXURY COSMETICS</h1>
-            <p id="brandSubText"></p>
+            <h1 id="brandTitleText">KORELYA KURDISTAN</h1>
+            <p id="brandSubText">کۆزمەتیک و کەرەستەیێن جوانکاریێ</p>
         </div>
-        <button class="theme-btn" id="themeToggle">🌙</button>
+        <div class="header-actions">
+            <button class="cart-header-btn" id="openCartBtn">
+                🛒 سەلک (<span id="cartCount">0</span>)
+            </button>
+            <button class="theme-btn" id="themeToggle">🌙</button>
+        </div>
     </header>
 
     <div class="controls">
@@ -228,13 +319,14 @@
 
         <div class="category-scroll">
             <button class="cat-btn active" data-cat="all">هەمی بەرهەم</button>
-            <button class="cat-btn" data-cat="perfume">عەتر (Perfume)</button>
-            <button class="cat-btn" data-cat="skincare">پێست (Skin Care)</button>
+            <button class="cat-btn" data-cat="hair">شامپۆ و پرچ (Hair Care)</button>
+            <button class="cat-btn" data-cat="skincare">پێست و کرێم (Skin Care)</button>
             <button class="cat-btn" data-cat="makeup">مەیک ئەپ (Makeup)</button>
-            <button class="cat-btn" data-cat="hair">پرچ (Hair)</button>
+            <button class="cat-btn" data-cat="perfume">عەتر (Perfume)</button>
         </div>
     </div>
 
+    <!-- 4 Posts Grid -->
     <main class="product-grid" id="gridContainer"></main>
 
     <!-- DETAILS MODAL -->
@@ -272,15 +364,48 @@
                     <p style="font-size: 13.5px; line-height: 1.5; color: var(--text-sub);" id="modalDesc"></p>
                     <ul class="features-list" id="modalFeatures"></ul>
 
-                    <button class="whatsapp-direct-btn" id="modalWhatsAppBtn" style="display: none;">
-                        📲 داخوازی ب واتسئەپی
-                    </button>
+                    <div class="modal-btns">
+                        <button class="modal-cart-btn" id="modalAddCartBtn">🛒 زێدەکرن بۆ سەلکێ</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- CART MODAL -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content cart-modal-content">
+            <button class="close-btn" id="closeCartModal">✕</button>
+            <h2 style="font-size: 18px; font-weight: 800;">سەلکا داخوازیێن تە 🛒</h2>
+            
+            <div class="cart-list" id="cartListContainer"></div>
+
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 17px;">
+                    <span>کۆژمێ گشتی:</span>
+                    <span style="color: var(--accent);" id="cartTotalSum">$0</span>
+                </div>
+            </div>
+
+            <button class="whatsapp-order-btn" id="sendWhatsAppOrderBtn">
+                📲 فرێکرنا داخوازیێ بۆ واتسئەپی
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER (DEVELOPER: OMED ABDULWAHID) -->
+    <footer class="site-footer">
+        <div class="footer-brand">KORELYA KURDISTAN</div>
+        <div class="dev-box">
+            <span class="dev-label">Designed & Developed by</span>
+            <span class="dev-name">Omed Abdulwahid</span>
+            <a href="https://wa.me/9647507100238" target="_blank" class="dev-phone">📞 0750 710 0238</a>
+        </div>
+    </footer>
+
     <script>
+        const ORDER_WHATSAPP_PHONE = "9647502406123";
+
         const firebaseConfig = {
           apiKey: "AIzaSyCq80sBc7ccLH31bUufiUP1El-GkJ-vqp8",
           authDomain: "korelya-kurdsitan.firebaseapp.com",
@@ -294,22 +419,21 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentPhone = "9647502406123";
         let products = [];
-        let currentProduct = null;
+        let cart = [];
+        let currentModalProduct = null;
         const grid = document.getElementById('gridContainer');
 
-        // Realtime Listener for Settings
+        // Settings Realtime
         db.ref('settings').on('value', snapshot => {
             const data = snapshot.val();
             if (data) {
-                document.getElementById('brandTitleText').textContent = data.brandTitle || 'LUXURY COSMETICS';
-                document.getElementById('brandSubText').textContent = data.brandSub || '';
-                if (data.phone) currentPhone = data.phone;
+                document.getElementById('brandTitleText').textContent = data.brandTitle || 'KORELYA KURDISTAN';
+                document.getElementById('brandSubText').textContent = data.brandSub || 'کۆزمەتیک و کەرەستەیێن جوانکاریێ';
             }
         });
 
-        // Realtime Listener for Products
+        // Products Realtime
         db.ref('products').on('value', snapshot => {
             products = [];
             const data = snapshot.val();
@@ -359,23 +483,112 @@
                         <div class="title">${p.name}</div>
                         ${p.shortDesc ? `<div class="desc-preview">${p.shortDesc}</div>` : ''}
                         ${pricingHtml}
+                        <button class="card-add-btn" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 زێدەکرن بۆ سەلکێ</button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
+        // Cart Actions
+        window.addToCart = function(id) {
+            const item = products.find(x => x.id === id);
+            if (!item) return;
+            const found = cart.find(x => x.id === id);
+            if (found) found.qty += 1;
+            else cart.push({ ...item, qty: 1 });
+            updateCartCount();
+        };
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, i) => sum + i.qty, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        document.getElementById('openCartBtn').onclick = () => {
+            renderCartModal();
+            document.getElementById('cartModal').classList.add('active');
+        };
+        document.getElementById('closeCartModal').onclick = () => {
+            document.getElementById('cartModal').classList.remove('active');
+        };
+
+        function renderCartModal() {
+            const container = document.getElementById('cartListContainer');
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-sub); padding: 20px;">سەلک یا ڤالایە.</p>';
+                document.getElementById('cartTotalSum').textContent = "$0";
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemPrice = item.buyPrice || item.sellPrice || 0;
+                const sub = itemPrice * item.qty;
+                total += sub;
+
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">${item.name}</div>
+                        <div style="font-size: 12px; color: var(--text-sub);">${item.code || ''} | $${itemPrice} × ${item.qty}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 800; color: var(--accent);">$${sub}</span>
+                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('cartTotalSum').textContent = "$" + total;
+        }
+
+        window.changeQty = function(id, delta) {
+            const item = cart.find(x => x.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) cart = cart.filter(x => x.id !== id);
+            }
+            updateCartCount();
+            renderCartModal();
+        };
+
+        // WhatsApp Order Send to 07502406123
+        document.getElementById('sendWhatsAppOrderBtn').onclick = () => {
+            if (cart.length === 0) {
+                alert("تکایە بەرهەمەکی هەڵبژێرە!");
+                return;
+            }
+            let msg = `سلاڤ و ڕێز، من ئەڤ داخوازیە ژ کاتالۆگێ *KORELYA KURDISTAN* یا هەڵبژارتی:\n\n`;
+            let total = 0;
+            cart.forEach((i, idx) => {
+                const price = i.buyPrice || i.sellPrice || 0;
+                const sub = price * i.qty;
+                total += sub;
+                msg += `${idx + 1}. *${i.name}* ${i.code ? `(${i.code})` : ''}\n`;
+                msg += `   - عەدەد: ${i.qty}\n`;
+                msg += `   - نرخ: $${price} (کۆم: $${sub})\n\n`;
+            });
+            msg += `--------------------------\n`;
+            msg += `💰 *کۆژمێ گشتی: $${total}*\n`;
+            msg += `تکایە داخوازیێ پشتڕاست بکەنەڤە.`;
+
+            window.open(`https://wa.me/${ORDER_WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        // Modal Open
         function openModal(p) {
-            currentProduct = p;
+            currentModalProduct = p;
             document.getElementById('modalTitle').textContent = p.name;
             
             const codeEl = document.getElementById('modalCode');
             if (p.code) {
                 codeEl.textContent = "کۆد: " + p.code;
                 codeEl.style.display = 'block';
-            } else {
-                codeEl.style.display = 'none';
-            }
+            } else codeEl.style.display = 'none';
 
             const hasBuy = p.buyPrice !== null && p.buyPrice !== undefined;
             const hasSell = p.sellPrice !== null && p.sellPrice !== undefined;
@@ -400,17 +613,13 @@
                     profitRow.style.display = 'flex';
                     document.getElementById('modalProfit').textContent = "+$" + (p.sellPrice - p.buyPrice);
                 } else profitRow.style.display = 'none';
-            } else {
-                pricingBox.style.display = 'none';
-            }
+            } else pricingBox.style.display = 'none';
 
             const descEl = document.getElementById('modalDesc');
             if (p.fullDesc) {
                 descEl.textContent = p.fullDesc;
                 descEl.style.display = 'block';
-            } else {
-                descEl.style.display = 'none';
-            }
+            } else descEl.style.display = 'none';
 
             const featList = document.getElementById('modalFeatures');
             featList.innerHTML = '';
@@ -421,9 +630,7 @@
                     li.textContent = f;
                     featList.appendChild(li);
                 });
-            } else {
-                featList.style.display = 'none';
-            }
+            } else featList.style.display = 'none';
 
             const mainImg = document.getElementById('modalMainImg');
             const thumbs = document.getElementById('modalThumbs');
@@ -443,45 +650,28 @@
                     };
                     thumbs.appendChild(t);
                 });
-            } else {
-                thumbs.style.display = 'none';
-            }
-
-            const waBtn = document.getElementById('modalWhatsAppBtn');
-            if (currentPhone) {
-                waBtn.style.display = 'flex';
-            } else {
-                waBtn.style.display = 'none';
-            }
+            } else thumbs.style.display = 'none';
 
             document.getElementById('productModal').classList.add('active');
         }
 
-        document.getElementById('closeModal').onclick = () => {
-            document.getElementById('productModal').classList.remove('active');
-        };
+        document.getElementById('closeModal').onclick = () => document.getElementById('productModal').classList.remove('active');
         document.getElementById('productModal').onclick = (e) => {
             if (e.target.id === 'productModal') document.getElementById('productModal').classList.remove('active');
         };
 
-        // WhatsApp Direct Link
-        document.getElementById('modalWhatsAppBtn').onclick = () => {
-            if (!currentProduct) return;
-            let msg = `سلاڤ، من پرسیار دەربارەی ڤی مەوادی هەیە:\n\n📌 *${currentProduct.name}*`;
-            if (currentProduct.code) msg += `\nکۆد: ${currentProduct.code}`;
-            if (currentProduct.buyPrice) msg += `\nبهایێ جملە: $${currentProduct.buyPrice}`;
-            if (currentProduct.sellPrice) msg += `\nبهایێ موفرەد: $${currentProduct.sellPrice}`;
-            window.open(`https://wa.me/${currentPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        document.getElementById('modalAddCartBtn').onclick = () => {
+            if (currentModalProduct) addToCart(currentModalProduct.id);
+            document.getElementById('productModal').classList.remove('active');
         };
 
-        // Search
+        // Search & Filters
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase();
             const res = products.filter(p => p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q)));
             renderProducts(res);
         });
 
-        // Filter
         document.querySelectorAll('.cat-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -492,6 +682,7 @@
             };
         });
 
+        // Theme Toggle
         const themeBtn = document.getElementById('themeToggle');
         if (localStorage.getItem('cosmetics_theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
